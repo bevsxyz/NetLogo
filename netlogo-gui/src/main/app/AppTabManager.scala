@@ -198,16 +198,39 @@ class AppTabManager(val appTabsPanel:          Tabs,
 
   def setPanelsSelectedIndex(index: Int): Unit =  {
     val (tabOwner, tabIndex) = ownerAndIndexFromCombinedIndex(index)
+    setPanelsSelectedIndexHelper(tabOwner, tabIndex)
+  }
+
+  /**
+    * Makes a tab component, specified by owner and index, selected or selectable, whether or not a separate code window exists.
+    *
+    * Usual effect: the specified component becomes the selected tab of the tabOwner.
+    * An important alternative case occurs when a specified App Tab component is already selected.
+    * This should only happen when focus is in the separate code tab window.
+    * Swing will not allow the selection unless the Tab is first deselected. To deselect the tab without selecting
+    * another tab, the selected tab index of the tabOwner must be set to -1.
+    * The App Tab of interest is saved as the currentTab.
+    * Documentation August 2021 - AAB
+    *
+    * @param tabOwner Owner of the Tab to be selected
+    *
+    * @param index    Index of the Tab to be selected
+    */
+  private def setPanelsSelectedIndexHelper(tabOwner: AbstractTabsPanel, tabIndex: Int): Unit = {
     if (tabOwner.isInstanceOf[CodeTabsPanel]) {
       tabOwner.requestFocus
       tabOwner.setSelectedIndex(tabIndex)
     } else {
       val selectedIndex = getSelectedAppTabIndex
       if (selectedIndex == tabIndex) {
-       setSelectedAppTab(-1)
+        // Saves selected tab as current tab
+        setCurrentTab(tabOwner.getComponentAt(tabIndex))
+        // Deselects the tab
+        setSelectedAppTab(-1)
       }
-       setSelectedAppTab(tabIndex)
-      }
+      // Reselects the tab
+      setSelectedAppTab(tabIndex)
+    }
   }
 
   def getIndexOfCodeTab(tab: CodeTab): Int = {
@@ -266,6 +289,12 @@ class AppTabManager(val appTabsPanel:          Tabs,
         appTabsPanel.mainCodeTab,
         appTabsPanel.externalFileTabs)
       codeTabsPanelOption = Some(codeTabsPanel)
+      // If the Selected Component in the App Tabs Panel was the CodeTab
+      // set it to be the Interface Tab, otherwise moving the CodeTab will
+      // cause swing to make the Info Tab the Selected Component
+      if (appTabsPanel.getSelectedComponent == appTabsPanel.mainCodeTab) {
+        appTabsPanel.setSelectedComponent(appTabsPanel.interfaceTab)
+      }
       codeTabsPanel.setTabManager(this)
       // Move tabs from appTabsPanel to codeTabsPanel.
       // Iterate starting at last tab so that indexing remains valid when
@@ -280,12 +309,10 @@ class AppTabManager(val appTabsPanel:          Tabs,
            appTabsPanel.getToolTipTextAt(n),
            0)
         }
-
       }
 
       appTabsPanel.mainCodeTab.getPoppingCheckBox.setSelected(true)
       codeTabsPanel.setSelectedComponent(appTabsPanel.mainCodeTab)
-      appTabsPanel.setSelectedComponent(appTabsPanel.interfaceTab)
       appTabsPanel.getAppFrame.addLinkComponent(codeTabsPanel.getCodeTabContainer)
       createCodeTabAccelerators()
       Event.rehash()
@@ -514,23 +541,22 @@ class AppTabManager(val appTabsPanel:          Tabs,
   }
 
   /**
-   * Makes a tab component selected, whether or not separate code window exists.
-   *
-   * @param tab the Component to be selected
-   */
+    * Makes a tab component selected or selectable, whether or not a separate code window exists.
+    *
+    * Usual effect: the specified component becomes the selected tab of the tabOwner.
+    * An important alternative case occurs when a specified App Tab component is already selected.
+    * This should only happen when focus is in the separate code tab window.
+    * Swing will not allow the selection unless the Tab is first deselected. To deselect the tab without selecting
+    * another tab, the selected tab index of the tabOwner must be set to -1.
+    * The App Tab of interest is saved as the currentTab.
+    * Documentation update August 2021 - AAB
+    *
+    * @param tab the Component to be selected
+    */
   def setPanelsSelectedComponent(tab: Component): Unit = {
     require(tab != null)
     val (tabOwner, tabIndex) = ownerAndIndexOfTab(tab)
-    if (tabOwner.isInstanceOf[CodeTabsPanel]) {
-      tabOwner.requestFocus
-      tabOwner.setSelectedIndex(tabIndex)
-    } else {
-      val selectedIndex = getSelectedAppTabIndex
-      if (selectedIndex == tabIndex) {
-        setSelectedAppTab(-1)
-      }
-        setSelectedAppTab(tabIndex)
-      }
+    setPanelsSelectedIndexHelper(tabOwner, tabIndex)
   }
 
   /**
@@ -805,6 +831,19 @@ class AppTabManager(val appTabsPanel:          Tabs,
       }
       if (item.isInstanceOf[JMenu]) {
         __printMenuAccelerators(item.asInstanceOf[JMenu])
+      }
+    }
+  }
+
+
+  def __getShortNameSwingObject(obj: java.awt.Component, nullName: String="<null>"): String = {
+    val some = Option(obj) // Because Option(null) = None 11/2020 AAB
+    some match {
+      case None           => return nullName
+      case Some(theValue) =>  {
+        val pattern = """(^[^\[]*)\[(.*$)""".r
+        val pattern(name, _) = obj.toString
+        return(name.split("\\.").last)
       }
     }
   }
