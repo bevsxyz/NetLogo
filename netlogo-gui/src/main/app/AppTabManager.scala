@@ -276,6 +276,8 @@ class AppTabManager(val appTabsPanel:          Tabs,
         appTabsPanel.mainCodeTab.requestFocus
         appTabsPanel.getAppFrame.removeLinkComponent(codeTabsPanel.getCodeTabContainer)
         Event.rehash()
+        println("*** after unify tabs - Hide count: " + __countMenuItembyNameAndMenuName("Tools", "Hide Command Center") +
+        " - Undo count: " + __countMenuItembyNameAndMenuName("Edit", "Undo"))
       } // end case where work was done. AAB 10/2020
     }
   }
@@ -316,6 +318,8 @@ class AppTabManager(val appTabsPanel:          Tabs,
       appTabsPanel.getAppFrame.addLinkComponent(codeTabsPanel.getCodeTabContainer)
       createCodeTabAccelerators()
       Event.rehash()
+      println("*** after separate code tabs - Hide count: " + __countMenuItembyNameAndMenuName("Tools", "Hide Command Center") +
+           " - Undo count: " + __countMenuItembyNameAndMenuName("Edit", "Undo"))
     }
   }
 

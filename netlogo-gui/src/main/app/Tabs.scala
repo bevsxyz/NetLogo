@@ -110,6 +110,8 @@ class Tabs(workspace:           GUIWorkspace,
     })
 
   def stateChanged(e: ChangeEvent) = {
+    val debugOn = this.getTabCount > 1 // before init happens
+    if (debugOn) println("  ")
     // Because there can be a separate code tab window, it is
     // sometime necessary to deselect a tab by setting the selected
     // tab index of the parent JTabbedPane to -1
@@ -119,6 +121,8 @@ class Tabs(workspace:           GUIWorkspace,
       val previousTab = tabManager.getCurrentTab
       currentTab = getSelectedComponent
       tabManager.setCurrentTab(currentTab)
+      if (debugOn) println("*** Tabs - Previous Tab: " + tabManager.__getShortNameSwingObject(previousTab))
+      if (debugOn) println("*** Tabs - Current Tab: " + tabManager.__getShortNameSwingObject(currentTab))
       previousTab match {
         case mt: MenuTab => mt.activeMenuActions foreach menu.revokeAction
         case _ =>
@@ -135,6 +139,8 @@ class Tabs(workspace:           GUIWorkspace,
       }
       currentTab.requestFocus()
       new AppEvents.SwitchedTabsEvent(previousTab, currentTab).raise(this)
+      if (debugOn) println("*** Tabs - Hide count: " + tabManager.__countMenuItembyNameAndMenuName("Tools", "Hide Command Center") +
+      " - Undo count: " + tabManager.__countMenuItembyNameAndMenuName("Edit", "Undo"))
     }
   }
 
