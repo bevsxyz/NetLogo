@@ -219,7 +219,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
     */
   private def setPanelsSelectedIndexHelper(tabOwner: AbstractTabsPanel, tabIndex: Int): Unit = {
     if (tabOwner.isInstanceOf[CodeTabsPanel]) {
-      tabOwner.requestFocus
+      tabOwner.requestFocusInWindow
       tabOwner.setSelectedIndex(tabIndex)
     } else {
       val selectedIndex = getSelectedAppTabIndex
@@ -275,7 +275,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
         }
         codeTabsPanel.getCodeTabContainer.dispose
         appTabsPanel.mainCodeTab.getPoppingCheckBox.setSelected(false)
-        appTabsPanel.mainCodeTab.requestFocus
+        appTabsPanel.mainCodeTab.requestFocusInWindow
         appTabsPanel.getAppFrame.removeLinkComponent(codeTabsPanel.getCodeTabContainer)
         Event.rehash()
         println("   ")

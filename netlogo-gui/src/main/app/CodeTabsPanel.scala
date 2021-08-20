@@ -81,7 +81,7 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
         } else {
           println("### mouse click in CodeTabsPanel")
           tabManager.setCurrentTab(currentTab)
-          currentTab.requestFocus()
+          currentTab.requestFocusInWindow()
         }
       }
     }
@@ -126,7 +126,7 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
         case (false, true) => tabManager.appTabsPanel.saveModelActions foreach tabManager.menuBar.revokeAction
         case _             =>
       }
-      currentTab.requestFocus()
+      currentTab.requestFocusInWindow()
       tabManager.createCodeTabAccelerators
       // The SwitchedTabsEvent will cause compilation when the user leaves an edited CodeTab. AAB 10/2020
       new AppEvents.SwitchedTabsEvent(previousTab, currentTab).raise(this)

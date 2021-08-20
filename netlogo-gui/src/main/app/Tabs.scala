@@ -142,7 +142,7 @@ class Tabs(workspace:           GUIWorkspace,
         case (false, true) => saveModelActions foreach menu.revokeAction
         case _             =>
       }
-      currentTab.requestFocus()
+      currentTab.requestFocusInWindow()
       new AppEvents.SwitchedTabsEvent(previousTab, currentTab).raise(this)
       if (debugOn) println("    Hide count: " + tabManager.__countMenuItembyNameAndMenuName("Tools", "Hide Command Center"))
       if (debugOn) println("    Undo count: " + tabManager.__countMenuItembyNameAndMenuName("Edit", "Undo"))
@@ -258,7 +258,7 @@ class Tabs(workspace:           GUIWorkspace,
         // I don't really know why this is necessary when you delete a slider (by using the menu
         // item *not* the button) which causes an error in the Code tab the focus gets lost,
         // so request the focus by a known component 7/18/07
-        requestFocus()
+        requestFocusInWindow()
       }
       case file: ExternalFileInterface => {
         val filename = file.getFileName
@@ -272,7 +272,7 @@ class Tabs(workspace:           GUIWorkspace,
           tabManager.setPanelsSelectedComponent(tab.get)
         }
         recolorTab(tab.get, e.error != null)
-        requestFocus()
+        requestFocusInWindow()
       }
       case null => { // i'm assuming this is only true when we've deleted that last widget. not a great sol'n - AZS 5/16/05
         recolorInterfaceTab()
@@ -324,10 +324,10 @@ class Tabs(workspace:           GUIWorkspace,
     Event.rehash()
 
     tabManager.setPanelsSelectedComponent(tab)
-    // if I just call requestFocus the tab never gets the focus request because it's not yet
+    // if I just call requestFocusInWindow the tab never gets the focus request because it's not yet
     // visible.  There might be a more swing appropriate way to do this but I can't figure it out
     // (if you know it feel free to fix) ev 7/24/07
-    EventQueue.invokeLater( () => requestFocus() )
+    EventQueue.invokeLater( () => requestFocusInWindow() )
   }
 
   def closeExternalFile(filename: Filename): Unit = {
@@ -379,7 +379,7 @@ class Tabs(workspace:           GUIWorkspace,
 
   def handle(e: AfterLoadEvent) = {
     mainCodeTab.getPoppingCheckBox.setSelected(tabManager.isCodeTabSeparate)
-    requestFocus()
+    requestFocusInWindow()
   }
 
   object SaveAllAction extends ExceptionCatchingAction(I18N.gui.get("menu.file.saveAll"), this)
