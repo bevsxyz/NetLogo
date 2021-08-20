@@ -72,18 +72,18 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
       // A single mouse click switches focus to a tab. AAB 10/2020
       if (me.getClickCount() == 1) {
         val currentTab = me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent
-        println("   ")
-        println("### CodeTabsPanel - mouseClicked")
         tabManager.setCurrentTab(currentTab)
-        println("### CodeTabsPanel")
         currentTab.requestFocus()
-      }
-      // A single mouse control-click on the MainCodeTab in a separate window
-      // closes the code window, and takes care of the bookkeeping. AAB 10/2020
-      if (me.getClickCount() == 1 && me.isControlDown) {
-        val currentTab = me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent
-        if (currentTab.isInstanceOf[MainCodeTab]) {
-          tabManager.switchToNoSeparateCodeWindow
+        // A single mouse control-click on the MainCodeTab in a separate window
+        // closes the code window, and takes care of the bookkeeping. AAB 10/2020
+        if (me.isControlDown) {
+          if (currentTab.isInstanceOf[MainCodeTab]) {
+            println("   ")
+            println("### Code Tab control clicked in CodeTabsPanel")
+            tabManager.switchToNoSeparateCodeWindow
+          }
+        } else {
+          println("### mouse click in CodeTabsPanel")
         }
       }
     }
@@ -92,6 +92,7 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
   // If the user closes the code window, take care of the bookkeeping. AAB 10/2020
   codeTabContainer.addWindowListener(new WindowAdapter() {
     override def windowClosing(e: WindowEvent) {
+      println("### Code Tab Window Close Button")
       tabManager.switchToNoSeparateCodeWindow
     }
   })
