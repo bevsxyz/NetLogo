@@ -72,18 +72,16 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
       // A single mouse click switches focus to a tab. AAB 10/2020
       if (me.getClickCount() == 1) {
         val currentTab = me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent
-        tabManager.setCurrentTab(currentTab)
-        currentTab.requestFocus()
         // A single mouse control-click on the MainCodeTab in a separate window
         // closes the code window, and takes care of the bookkeeping. AAB 10/2020
-        if (me.isControlDown) {
-          if (currentTab.isInstanceOf[MainCodeTab]) {
-            println("   ")
-            println("### Code Tab control clicked in CodeTabsPanel")
-            tabManager.switchToNoSeparateCodeWindow
-          }
+        if (me.isControlDown && currentTab.isInstanceOf[MainCodeTab]) {
+          println("   ")
+          println("### Code Tab control clicked in CodeTabsPanel")
+          tabManager.switchToNoSeparateCodeWindow
         } else {
           println("### mouse click in CodeTabsPanel")
+          tabManager.setCurrentTab(currentTab)
+          currentTab.requestFocus()
         }
       }
     }

@@ -157,13 +157,13 @@ class Tabs(workspace:           GUIWorkspace,
       // A single mouse control-click on the MainCodeTab in a separate window
       // opens the code window, and takes care of the bookkeeping. AAB 10/2020
       if (me.getClickCount() == 1 && me.isControlDown) {
-        println("### " + tabManager.__getShortNameSwingObject(me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent) + " control clicked")
+        println("### " + tabManager.__getShortNameSwingObject(me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent) + " control clicked in Tabs")
         val currentTab = me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent
         if (currentTab.isInstanceOf[MainCodeTab]) {
           tabManager.switchToSeparateCodeWindow
         }
-      } else {
-        println("### " + tabManager.__getShortNameSwingObject(me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent) + " clicked")
+      } else if (me.getClickCount() == 1) {
+        println("### " + tabManager.__getShortNameSwingObject(me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent) + " clicked in Tabs")
       }
     }
   })
