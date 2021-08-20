@@ -76,12 +76,16 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
         // closes the code window, and takes care of the bookkeeping. AAB 10/2020
         if (me.isControlDown && currentTab.isInstanceOf[MainCodeTab]) {
           println("   ")
-          println("### Code Tab control clicked in CodeTabsPanel")
+          println("   ")
+          println(">>> CodeTabsPanel - Code Tab control clicked")
           tabManager.switchToNoSeparateCodeWindow
         } else {
-          println("### mouse click in CodeTabsPanel")
+          println("   ")
+          println("*** CodeTabsPanel - mouse click ")
           tabManager.setCurrentTab(currentTab)
+          println("   Request Focus")
           currentTab.requestFocusInWindow()
+          println("***")
         }
       }
     }
@@ -90,7 +94,9 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
   // If the user closes the code window, take care of the bookkeeping. AAB 10/2020
   codeTabContainer.addWindowListener(new WindowAdapter() {
     override def windowClosing(e: WindowEvent) {
-      println("### Code Tab Window Close Button")
+      println("   ")
+      println("   ")
+      println(">>> Code Tab Window - Close Button")
       tabManager.switchToNoSeparateCodeWindow
     }
   })
@@ -126,6 +132,7 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
         case (false, true) => tabManager.appTabsPanel.saveModelActions foreach tabManager.menuBar.revokeAction
         case _             =>
       }
+      println("    Current Tab: " + tabManager.__getShortNameSwingObject(currentTab))
       currentTab.requestFocusInWindow()
       tabManager.createCodeTabAccelerators
       // The SwitchedTabsEvent will cause compilation when the user leaves an edited CodeTab. AAB 10/2020
@@ -134,7 +141,7 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
       println("    Undo count: " + tabManager.__countMenuItembyNameAndMenuName("Edit", "Undo"))
       println("*** CodeTabsPanel")
     } else {
-       println("*** CodeTabsPanel: -1, currentTab: " + tabManager.__getShortNameSwingObject(tabManager.getCurrentTab))
+       println("### CodeTabsPanel: -1, currentTab: " + tabManager.__getShortNameSwingObject(tabManager.getCurrentTab))
     }
   }
 

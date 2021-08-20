@@ -142,13 +142,14 @@ class Tabs(workspace:           GUIWorkspace,
         case (false, true) => saveModelActions foreach menu.revokeAction
         case _             =>
       }
+      if (debugOn) println("    Focus requested: " + tabManager.__getShortNameSwingObject(currentTab))
       currentTab.requestFocusInWindow()
       new AppEvents.SwitchedTabsEvent(previousTab, currentTab).raise(this)
       if (debugOn) println("    Hide count: " + tabManager.__countMenuItembyNameAndMenuName("Tools", "Hide Command Center"))
       if (debugOn) println("    Undo count: " + tabManager.__countMenuItembyNameAndMenuName("Edit", "Undo"))
       if (debugOn) println("*** Tabs")
     } else {
-       println("*** Tabs: -1, currentTab: " + tabManager.__getShortNameSwingObject(tabManager.getCurrentTab))
+       println("### Tabs: Selected AppTab Index = -1, currentTab: " + tabManager.__getShortNameSwingObject(tabManager.getCurrentTab))
     }
   }
 
@@ -157,13 +158,15 @@ class Tabs(workspace:           GUIWorkspace,
       // A single mouse control-click on the MainCodeTab in a separate window
       // opens the code window, and takes care of the bookkeeping. AAB 10/2020
       if (me.getClickCount() == 1 && me.isControlDown) {
-        println("### " + tabManager.__getShortNameSwingObject(me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent) + " control clicked in Tabs")
         val currentTab = me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent
         if (currentTab.isInstanceOf[MainCodeTab]) {
+          println(">>> Tabs - " + tabManager.__getShortNameSwingObject(me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent) + " control clicked")
           tabManager.switchToSeparateCodeWindow
+        } else {
+          println(" Tabs - " + tabManager.__getShortNameSwingObject(me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent) + " control clicked")
         }
       } else if (me.getClickCount() == 1) {
-        println("### " + tabManager.__getShortNameSwingObject(me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent) + " clicked in Tabs")
+        println("### Tabs - " + tabManager.__getShortNameSwingObject(me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent) + " clicked")
       }
     }
   })
@@ -258,6 +261,7 @@ class Tabs(workspace:           GUIWorkspace,
         // I don't really know why this is necessary when you delete a slider (by using the menu
         // item *not* the button) which causes an error in the Code tab the focus gets lost,
         // so request the focus by a known component 7/18/07
+        println("### Tabs, CompiledEvent, clearErrors, stableCodeTab, requestFocusInWindow, why?")
         requestFocusInWindow()
       }
       case file: ExternalFileInterface => {
@@ -272,6 +276,7 @@ class Tabs(workspace:           GUIWorkspace,
           tabManager.setPanelsSelectedComponent(tab.get)
         }
         recolorTab(tab.get, e.error != null)
+        println("### Tabs, CompiledEvent, clearErrors, ExternalFileInterface, requestFocusInWindow, why?")
         requestFocusInWindow()
       }
       case null => { // i'm assuming this is only true when we've deleted that last widget. not a great sol'n - AZS 5/16/05
@@ -327,6 +332,7 @@ class Tabs(workspace:           GUIWorkspace,
     // if I just call requestFocusInWindow the tab never gets the focus request because it's not yet
     // visible.  There might be a more swing appropriate way to do this but I can't figure it out
     // (if you know it feel free to fix) ev 7/24/07
+    println("### Tabs, addNewExternalFileTab, invoke, requestFocusInWindow, better way?")
     EventQueue.invokeLater( () => requestFocusInWindow() )
   }
 
@@ -379,6 +385,7 @@ class Tabs(workspace:           GUIWorkspace,
 
   def handle(e: AfterLoadEvent) = {
     mainCodeTab.getPoppingCheckBox.setSelected(tabManager.isCodeTabSeparate)
+    println("### Tabs, AfterLoadEvent, requestFocusInWindow")
     requestFocusInWindow()
   }
 

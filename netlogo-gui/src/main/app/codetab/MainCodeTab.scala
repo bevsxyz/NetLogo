@@ -38,10 +38,12 @@ with WindowEvents.LoadModelEvent.Handler
     def actionPerformed(e: ActionEvent) {
       if (poppingCheckBox.isSelected) {
         println("   ")
-        println("### Checkbox on " )
+        println("   ")
+        println(">>> Separate Code Tab: Checkbox on" )
       } else {
         println("   ")
-        println("### Checkbox off " )
+        println("   ")
+        println(">>> Unify Code Tab: Checkbox off" )
       }
       tabs.switchToSpecifiedCodeWindowState(poppingCheckBox.isSelected)
     }
