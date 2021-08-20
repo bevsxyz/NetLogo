@@ -118,6 +118,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
   }
 
   def setCurrentTab(tab: Component): Unit = {
+    println("    set current tab: " + __getShortNameSwingObject(tab))
     currentTab = tab
   }
 
@@ -224,6 +225,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
       val selectedIndex = getSelectedAppTabIndex
       if (selectedIndex == tabIndex) {
         // Saves selected tab as current tab
+        println("Helper, set current tab:  " + tabOwner.getComponentAt(tabIndex))
         setCurrentTab(tabOwner.getComponentAt(tabIndex))
         // Deselects the tab
         setSelectedAppTab(-1)
@@ -276,8 +278,9 @@ class AppTabManager(val appTabsPanel:          Tabs,
         appTabsPanel.mainCodeTab.requestFocus
         appTabsPanel.getAppFrame.removeLinkComponent(codeTabsPanel.getCodeTabContainer)
         Event.rehash()
+        println("   ")
         println("*** after unify tabs - Hide count: " + __countMenuItembyNameAndMenuName("Tools", "Hide Command Center") +
-        " - Undo count: " + __countMenuItembyNameAndMenuName("Edit", "Undo"))
+        ", Undo count: " + __countMenuItembyNameAndMenuName("Edit", "Undo") + " currentTab: " + __getShortNameSwingObject(getCurrentTab))
       } // end case where work was done. AAB 10/2020
     }
   }
@@ -318,8 +321,9 @@ class AppTabManager(val appTabsPanel:          Tabs,
       appTabsPanel.getAppFrame.addLinkComponent(codeTabsPanel.getCodeTabContainer)
       createCodeTabAccelerators()
       Event.rehash()
+      println("   ")
       println("*** after separate code tabs - Hide count: " + __countMenuItembyNameAndMenuName("Tools", "Hide Command Center") +
-           " - Undo count: " + __countMenuItembyNameAndMenuName("Edit", "Undo"))
+           ", Undo count: " + __countMenuItembyNameAndMenuName("Edit", "Undo") + " currentTab: " + __getShortNameSwingObject(getCurrentTab))
     }
   }
 

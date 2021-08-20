@@ -80,6 +80,7 @@ class Tabs(workspace:           GUIWorkspace,
     addTab(I18N.gui.get("tabs.run"), interfaceTab)
     addTab(I18N.gui.get("tabs.info"), infoTab)
     addTab(I18N.gui.get("tabs.code"), mainCodeTab)
+
     // If there is not separate code tab, the MainCodeTab belongs to Tabs.
     // Otherwise it will get transferred by CodeTabsPanel.init AAB 10/2020
 
@@ -101,7 +102,10 @@ class Tabs(workspace:           GUIWorkspace,
   jframe.addWindowFocusListener(new WindowAdapter() {
     override def windowGainedFocus(e: WindowEvent) {
       val currentTab = getTabs.getSelectedComponent
+      println("   ")
+      println("*** Tabs - windowGainedFocus")
       tabManager.setCurrentTab(currentTab)
+      println("*** Tabs")
       if (tabManager.getMainCodeTab.dirty) {
         // The SwitchedTabsEvent can lead to compilation. AAB 10/2020
          new AppEvents.SwitchedTabsEvent(tabManager.getMainCodeTab, currentTab).raise(getTabs)
@@ -120,9 +124,10 @@ class Tabs(workspace:           GUIWorkspace,
     if (tabManager.getSelectedAppTabIndex != -1) {
       val previousTab = tabManager.getCurrentTab
       currentTab = getSelectedComponent
+      if (debugOn) println("*** Tabs - stateChanged")
+      if (debugOn) println("    Previous Tab: " + tabManager.__getShortNameSwingObject(previousTab))
       tabManager.setCurrentTab(currentTab)
-      if (debugOn) println("*** Tabs - Previous Tab: " + tabManager.__getShortNameSwingObject(previousTab))
-      if (debugOn) println("*** Tabs - Current Tab: " + tabManager.__getShortNameSwingObject(currentTab))
+      if (debugOn) println("    Current Tab: " + tabManager.__getShortNameSwingObject(currentTab))
       previousTab match {
         case mt: MenuTab => mt.activeMenuActions foreach menu.revokeAction
         case _ =>
@@ -139,8 +144,11 @@ class Tabs(workspace:           GUIWorkspace,
       }
       currentTab.requestFocus()
       new AppEvents.SwitchedTabsEvent(previousTab, currentTab).raise(this)
-      if (debugOn) println("*** Tabs - Hide count: " + tabManager.__countMenuItembyNameAndMenuName("Tools", "Hide Command Center") +
-      " - Undo count: " + tabManager.__countMenuItembyNameAndMenuName("Edit", "Undo"))
+      if (debugOn) println("    Hide count: " + tabManager.__countMenuItembyNameAndMenuName("Tools", "Hide Command Center"))
+      if (debugOn) println("    Undo count: " + tabManager.__countMenuItembyNameAndMenuName("Edit", "Undo"))
+      if (debugOn) println("*** Tabs")
+    } else {
+       println("*** Tabs: -1, currentTab: " + tabManager.__getShortNameSwingObject(tabManager.getCurrentTab))
     }
   }
 
@@ -149,10 +157,13 @@ class Tabs(workspace:           GUIWorkspace,
       // A single mouse control-click on the MainCodeTab in a separate window
       // opens the code window, and takes care of the bookkeeping. AAB 10/2020
       if (me.getClickCount() == 1 && me.isControlDown) {
+        println("### " + tabManager.__getShortNameSwingObject(me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent) + " control clicked")
         val currentTab = me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent
         if (currentTab.isInstanceOf[MainCodeTab]) {
           tabManager.switchToSeparateCodeWindow
         }
+      } else {
+        println("### " + tabManager.__getShortNameSwingObject(me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent) + " clicked")
       }
     }
   })

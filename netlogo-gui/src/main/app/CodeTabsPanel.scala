@@ -72,7 +72,10 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
       // A single mouse click switches focus to a tab. AAB 10/2020
       if (me.getClickCount() == 1) {
         val currentTab = me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent
+        println("   ")
+        println("### CodeTabsPanel - mouseClicked")
         tabManager.setCurrentTab(currentTab)
+        println("### CodeTabsPanel")
         currentTab.requestFocus()
       }
       // A single mouse control-click on the MainCodeTab in a separate window
@@ -98,7 +101,10 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
   codeTabContainer.addWindowFocusListener(new WindowAdapter() {
     override def  windowGainedFocus(e: WindowEvent) {
       val currentTab = codeTabsPanel.getSelectedComponent
+      println("   ")
+      println("*** CodeTabsPanel - windowGainedFocus")
       tabManager.setCurrentTab(currentTab)
+      println("*** CodeTabsPanel")
     }
   })
 
@@ -111,7 +117,11 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
       if (currentTab == null) {
         currentTab = mainCodeTab
       }
+      println("   ")
+      println("*** CodeTabsPanel - stateChanged")
+      println("    Previous Tab: " + tabManager.__getShortNameSwingObject(previousTab))
       tabManager.setCurrentTab(currentTab)
+      println("    Current Tab: " + tabManager.__getShortNameSwingObject(currentTab))
       (previousTab.isInstanceOf[TemporaryCodeTab], currentTab.isInstanceOf[TemporaryCodeTab]) match {
         case (true, false) => tabManager.appTabsPanel.saveModelActions foreach tabManager.menuBar.offerAction
         case (false, true) => tabManager.appTabsPanel.saveModelActions foreach tabManager.menuBar.revokeAction
@@ -121,8 +131,11 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
       tabManager.createCodeTabAccelerators
       // The SwitchedTabsEvent will cause compilation when the user leaves an edited CodeTab. AAB 10/2020
       new AppEvents.SwitchedTabsEvent(previousTab, currentTab).raise(this)
-      println("*** CodeTabsPanel - Hide count: " + tabManager.__countMenuItembyNameAndMenuName("Tools", "Hide Command Center") +
-      " - Undo count: " + tabManager.__countMenuItembyNameAndMenuName("Edit", "Undo"))
+      println("    Hide count: " + tabManager.__countMenuItembyNameAndMenuName("Tools", "Hide Command Center"))
+      println("    Undo count: " + tabManager.__countMenuItembyNameAndMenuName("Edit", "Undo"))
+      println("*** CodeTabsPanel")
+    } else {
+       println("*** CodeTabsPanel: -1, currentTab: " + tabManager.__getShortNameSwingObject(tabManager.getCurrentTab))
     }
   }
 
