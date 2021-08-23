@@ -84,7 +84,7 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
           println("   ")
           println("*** CodeTabsPanel - mouse click ")
           // aabtabManager.setCurrentTab(currentTab)
-          println("   Request Focus")
+          println("    Focus requested: " + currentTab.getClass.getSimpleName)
           currentTab.requestFocusInWindow()
           println("***")
         }
@@ -131,12 +131,17 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
       println("    Previous Tab: " + previousTab.getClass.getSimpleName)
       //tabManager.setCurrentTab(currentTab)
       println("    Current Tab: " + currentTab.getClass.getSimpleName)
+      val owner = tabManager.getCodeTabsOwner
+      println("    CodeTabOwner " + owner.getClass.getSimpleName + " Selected Index: " + owner.getSelectedIndex)
+
       (previousTab.isInstanceOf[TemporaryCodeTab], currentTab.isInstanceOf[TemporaryCodeTab]) match {
         case (true, false) => tabManager.appTabsPanel.saveModelActions foreach tabManager.menuBar.offerAction
         case (false, true) => tabManager.appTabsPanel.saveModelActions foreach tabManager.menuBar.revokeAction
         case _             =>
       }
       println("    Current Tab: " + currentTab.getClass.getSimpleName)
+      println("    Focus requested: " + currentTab.getClass.getSimpleName)
+
       currentTab.requestFocusInWindow()
       tabManager.createCodeTabAccelerators
       // The SwitchedTabsEvent will cause compilation when the user leaves an edited CodeTab. AAB 10/2020

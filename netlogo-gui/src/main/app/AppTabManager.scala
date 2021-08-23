@@ -64,7 +64,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
 
   // might want access to these owner methods to be only in the app package
   // Need to carefully decide which methods are private. AAB 10/2020
-  def getCodeTabsOwner = {
+  def getCodeTabsOwner(): AbstractTabsPanel = {
     codeTabsPanelOption match {
       case None           => appTabsPanel
       case Some(theValue) => theValue
@@ -219,7 +219,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
     */
   private def setPanelsSelectedIndexHelper(tabOwner: AbstractTabsPanel, tabIndex: Int): Unit = {
     if (tabOwner.isInstanceOf[CodeTabsPanel]) {
-      println("    Helper, requestFocusInWindow: " + tabOwner.getClass.getSimpleName)
+      println("    Helper, request FocusInWindow: " + tabOwner.getClass.getSimpleName)
       tabOwner.requestFocusInWindow
       println("    Helper, setSelectedIndex: " + tabOwner.getClass.getSimpleName + " index " + tabIndex)
       tabOwner.setSelectedIndex(tabIndex)
@@ -238,11 +238,6 @@ class AppTabManager(val appTabsPanel:          Tabs,
       println("    Helper, setSelectedIndex: " + appTabsPanel.getClass.getSimpleName + " index " + tabIndex)
       setSelectedAppTab(tabIndex)
     }
-  }
-
-  def getIndexOfCodeTab(tab: CodeTab): Int = {
-    val index = getCodeTabsOwner.indexOfComponent(tab)
-    index + getAppTabsOwner.getTabCount
   }
 
   // Actions are created for use by the TabsMenu, and by accelerator keys AAB 10/2020
@@ -282,6 +277,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
         }
         codeTabsPanel.getCodeTabContainer.dispose
         appTabsPanel.mainCodeTab.getPoppingCheckBox.setSelected(false)
+        println("appTabsPanel mainCodeTab request FocusInWindow")
         appTabsPanel.mainCodeTab.requestFocusInWindow
         appTabsPanel.getAppFrame.removeLinkComponent(codeTabsPanel.getCodeTabContainer)
         Event.rehash()
@@ -338,6 +334,8 @@ class AppTabManager(val appTabsPanel:          Tabs,
       println("    Undo count: " + __countMenuItembyNameAndMenuName("Edit", "Undo"))
       println("    appTabsPanel currentTab: " + appTabsPanel.getCurrentTab.getClass.getSimpleName)
       println("    codeTabsPanel currentTab: " + codeTabsPanel.getCurrentTab.getClass.getSimpleName)
+      println("codeTabsPanel mainCodeTab request FocusInWindow")
+      codeTabsPanel.mainCodeTab.requestFocusInWindow
       println("### End tab separation")
     }
   }

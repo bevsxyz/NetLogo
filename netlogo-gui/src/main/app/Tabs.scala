@@ -131,7 +131,10 @@ class Tabs(workspace:           GUIWorkspace,
       if (debugOn) println("    Previous Tab: " + previousTab.getClass.getSimpleName)
       //tabManager.setCurrentTab(currentTab)
       if (debugOn) println("    Current Tab: " + currentTab.getClass.getSimpleName)
-      if (debugOn) println("    CodeTabIndex: " + tabManager.getIndexOfCodeTab(mainCodeTab))
+      if (debugOn) {
+        val owner = tabManager.getCodeTabsOwner
+        println("    CodeTabOwner " + owner.getClass.getSimpleName + " Selected Index: " + owner.getSelectedIndex)
+      }
       previousTab match {
         case mt: MenuTab => mt.activeMenuActions foreach menu.revokeAction
         case _ =>
@@ -155,7 +158,7 @@ class Tabs(workspace:           GUIWorkspace,
     } else {
       //       println("### Tabs: Selected AppTab Index = -1, currentTab: " + tabManager.getCurrentTab.getClass.getSimpleName)
       println("### Tabs: Selected AppTab Index = -1, currentTab: " + currentTab.getClass.getSimpleName)
-      currentTab.requestFocusInWindow()
+      //currentTab.requestFocusInWindow()
     }
   }
 
@@ -267,7 +270,7 @@ class Tabs(workspace:           GUIWorkspace,
         // I don't really know why this is necessary when you delete a slider (by using the menu
         // item *not* the button) which causes an error in the Code tab the focus gets lost,
         // so request the focus by a known component 7/18/07
-        println("### Tabs, CompiledEvent, clearErrors, stableCodeTab, requestFocusInWindow, why?")
+        println("### Tabs, CompiledEvent, clearErrors, stableCodeTab, request FocusInWindow, why?")
         requestFocusInWindow()
       }
       case file: ExternalFileInterface => {
@@ -282,7 +285,7 @@ class Tabs(workspace:           GUIWorkspace,
           tabManager.setPanelsSelectedComponent(tab.get)
         }
         recolorTab(tab.get, e.error != null)
-        println("### Tabs, CompiledEvent, clearErrors, ExternalFileInterface, requestFocusInWindow, why?")
+        println("### Tabs, CompiledEvent, clearErrors, ExternalFileInterface, request FocusInWindow, why?")
         requestFocusInWindow()
       }
       case null => { // i'm assuming this is only true when we've deleted that last widget. not a great sol'n - AZS 5/16/05
@@ -338,7 +341,7 @@ class Tabs(workspace:           GUIWorkspace,
     // if I just call requestFocusInWindow the tab never gets the focus request because it's not yet
     // visible.  There might be a more swing appropriate way to do this but I can't figure it out
     // (if you know it feel free to fix) ev 7/24/07
-    println("### Tabs, addNewExternalFileTab, invoke, requestFocusInWindow, better way?")
+    println("### Tabs, addNewExternalFileTab, invoke, request FocusInWindow, better way?")
     EventQueue.invokeLater( () => requestFocusInWindow() )
   }
 
@@ -391,7 +394,7 @@ class Tabs(workspace:           GUIWorkspace,
 
   def handle(e: AfterLoadEvent) = {
     mainCodeTab.getPoppingCheckBox.setSelected(tabManager.isCodeTabSeparate)
-    println("### Tabs, AfterLoadEvent, requestFocusInWindow")
+    println("### Tabs, AfterLoadEvent, request FocusInWindow")
     requestFocusInWindow()
   }
 
