@@ -288,7 +288,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
         println("   ")
         println("    Hide count: " + __countMenuItembyNameAndMenuName("Tools", "Hide Command Center"))
         println("    Undo count: " + __countMenuItembyNameAndMenuName("Edit", "Undo"))
-        println("    appTabsPanel currentTab: " + appTabsPanel.getCurrentTab.getClass.getSimpleName)
+        println("    appTabsPanel currentTab: " + __getShortNameSwingObject(appTabsPanel.getCurrentTab))
         println("    codeTabsPanel currentTab: " + __getShortNameSwingObject(codeTabsPanel.getCurrentTab))
         println("### End tab unification")
       } // end case where work was done. AAB 10/2020
@@ -336,7 +336,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
       println("   ")
       println("    Hide count: " + __countMenuItembyNameAndMenuName("Tools", "Hide Command Center"))
       println("    Undo count: " + __countMenuItembyNameAndMenuName("Edit", "Undo"))
-      println("    appTabsPanel currentTab: " + appTabsPanel.getCurrentTab.getClass.getSimpleName)
+      println("    appTabsPanel currentTab: " + __getShortNameSwingObject(appTabsPanel.getCurrentTab))
       println("    codeTabsPanel currentTab: " + __getShortNameSwingObject(codeTabsPanel.getCurrentTab))
       println("### End tab separation")
     }
@@ -586,7 +586,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
    * Gets selected non-code tab if any , whether or not separate code window exists.
    */
   def getSelectedNonCodeTabComponent(): Option[Component] = {
-    val index = appTabsPanel.getCurrentTab
+    val index = appTabsPanel.getSelectedIndex
     if (index == -1) {
       return None
     }
