@@ -45,7 +45,7 @@ abstract class AbstractTabsPanel(val workspace:           GUIWorkspace,
   var currentTab: Component = null
 
   def setCurrentTab(tab: Component): Unit = {
-    println("    set current tab: " + tabManager.__getShortNameSwingObject(tab))
+    println("    set current tab: " + tab.getClass.getSimpleName)
     currentTab = tab
   }
 

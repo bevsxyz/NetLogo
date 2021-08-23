@@ -118,7 +118,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
   // }
   //
   // def setCurrentTab(tab: Component): Unit = {
-  //   println("    set current tab: " + __getShortNameSwingObject(tab))
+  //   println("    set current tab: " + tab.getClass.getSimpleName)
   //   currentTab = tab
   // }
 
@@ -219,15 +219,15 @@ class AppTabManager(val appTabsPanel:          Tabs,
     */
   private def setPanelsSelectedIndexHelper(tabOwner: AbstractTabsPanel, tabIndex: Int): Unit = {
     if (tabOwner.isInstanceOf[CodeTabsPanel]) {
-      println("    Helper, requestFocusInWindow: " + __getShortNameSwingObject(tabOwner))
+      println("    Helper, requestFocusInWindow: " + tabOwner.getClass.getSimpleName)
       tabOwner.requestFocusInWindow
-      println("    Helper, setSelectedIndex: " + __getShortNameSwingObject(tabOwner) + " index " + tabIndex)
+      println("    Helper, setSelectedIndex: " + tabOwner.getClass.getSimpleName + " index " + tabIndex)
       tabOwner.setSelectedIndex(tabIndex)
     } else {
       val selectedIndex = getSelectedAppTabIndex
       if (selectedIndex == tabIndex) {
         // Saves selected tab as current tab
-        println("    Helper, setCurrentTab: " + __getShortNameSwingObject(tabOwner.getComponentAt(tabIndex)))
+        println("    Helper, setCurrentTab: " + tabOwner.getComponentAt(tabIndex).getClass.getSimpleName)
         // aab setCurrentTab(tabOwner.getComponentAt(tabIndex))
         tabOwner.setCurrentTab(tabOwner.getComponentAt(tabIndex))
         // Deselects the tab
@@ -235,7 +235,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
         setSelectedAppTab(-1)
       }
       // Reselects the tab in the Application window
-      println("    Helper, setSelectedIndex: " + __getShortNameSwingObject(appTabsPanel) + " index " + tabIndex)
+      println("    Helper, setSelectedIndex: " + appTabsPanel.getClass.getSimpleName + " index " + tabIndex)
       setSelectedAppTab(tabIndex)
     }
   }
@@ -288,8 +288,8 @@ class AppTabManager(val appTabsPanel:          Tabs,
         println("   ")
         println("    Hide count: " + __countMenuItembyNameAndMenuName("Tools", "Hide Command Center"))
         println("    Undo count: " + __countMenuItembyNameAndMenuName("Edit", "Undo"))
-        println("    appTabsPanel currentTab: " + __getShortNameSwingObject(appTabsPanel.getCurrentTab))
-        println("    codeTabsPanel currentTab: " + __getShortNameSwingObject(codeTabsPanel.getCurrentTab))
+        println("    appTabsPanel currentTab: " + appTabsPanel.getCurrentTab.getClass.getSimpleName)
+        println("    codeTabsPanel currentTab: " + codeTabsPanel.getCurrentTab.getClass.getSimpleName)
         println("### End tab unification")
       } // end case where work was done. AAB 10/2020
     }
@@ -336,8 +336,8 @@ class AppTabManager(val appTabsPanel:          Tabs,
       println("   ")
       println("    Hide count: " + __countMenuItembyNameAndMenuName("Tools", "Hide Command Center"))
       println("    Undo count: " + __countMenuItembyNameAndMenuName("Edit", "Undo"))
-      println("    appTabsPanel currentTab: " + __getShortNameSwingObject(appTabsPanel.getCurrentTab))
-      println("    codeTabsPanel currentTab: " + __getShortNameSwingObject(codeTabsPanel.getCurrentTab))
+      println("    appTabsPanel currentTab: " + appTabsPanel.getCurrentTab.getClass.getSimpleName)
+      println("    codeTabsPanel currentTab: " + codeTabsPanel.getCurrentTab.getClass.getSimpleName)
       println("### End tab separation")
     }
   }
@@ -512,7 +512,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
     *
     * @param tab The Component to remove.
     */
-   def removeTab(tab: Component): Unit = {
+  def removeTab(tab: Component): Unit = {
     require (tab != null)
     val (tabOwner, _) = ownerAndIndexOfTab(tab)
     if (tabOwner != null) {
@@ -600,7 +600,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
   /**
    * Gets selected code tab if any , whether or not separate code window exists.
    */
-   def getSelectedCodeTabComponent(): Option[Component] = {
+  def getSelectedCodeTabComponent(): Option[Component] = {
      codeTabsPanelOption match {
        case None                => {
          val index = appTabsPanel.getSelectedIndex
@@ -630,6 +630,8 @@ class AppTabManager(val appTabsPanel:          Tabs,
 
   // *** Begin debugging tools.
   // they begin with the prefix "__" AAB 10/2020.
+
+
 
   // Prints list of tabs in App Window and Separate Code Window (If any.)
   def __printAllTabs(): Unit = {
@@ -854,19 +856,6 @@ class AppTabManager(val appTabsPanel:          Tabs,
       }
       if (item.isInstanceOf[JMenu]) {
         __printMenuAccelerators(item.asInstanceOf[JMenu])
-      }
-    }
-  }
-
-
-  def __getShortNameSwingObject(obj: java.awt.Component, nullName: String="<null>"): String = {
-    val some = Option(obj) // Because Option(null) = None 11/2020 AAB
-    some match {
-      case None           => return nullName
-      case Some(theValue) =>  {
-        val pattern = """(^[^\[]*)\[(.*$)""".r
-        val pattern(name, _) = obj.toString
-        return(name.split("\\.").last)
       }
     }
   }

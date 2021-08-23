@@ -128,9 +128,10 @@ class Tabs(workspace:           GUIWorkspace,
       val previousTab = currentTab
       currentTab = getSelectedComponent
       if (debugOn) println("*** Tabs - stateChanged")
-      if (debugOn) println("    Previous Tab: " + tabManager.__getShortNameSwingObject(previousTab))
+      if (debugOn) println("    Previous Tab: " + previousTab.getClass.getSimpleName)
       //tabManager.setCurrentTab(currentTab)
-      if (debugOn) println("    Current Tab: " + tabManager.__getShortNameSwingObject(currentTab))
+      if (debugOn) println("    Current Tab: " + currentTab.getClass.getSimpleName)
+      if (debugOn) println("    CodeTabIndex: " + tabManager.getIndexOfCodeTab(mainCodeTab))
       previousTab match {
         case mt: MenuTab => mt.activeMenuActions foreach menu.revokeAction
         case _ =>
@@ -145,16 +146,16 @@ class Tabs(workspace:           GUIWorkspace,
         case (false, true) => saveModelActions foreach menu.revokeAction
         case _             =>
       }
-      if (debugOn) println("    Focus requested: " + tabManager.__getShortNameSwingObject(currentTab))
+      if (debugOn) println("    Focus requested: " + currentTab.getClass.getSimpleName)
       currentTab.requestFocusInWindow()
       new AppEvents.SwitchedTabsEvent(previousTab, currentTab).raise(this)
       if (debugOn) println("    Hide count: " + tabManager.__countMenuItembyNameAndMenuName("Tools", "Hide Command Center"))
       if (debugOn) println("    Undo count: " + tabManager.__countMenuItembyNameAndMenuName("Edit", "Undo"))
       if (debugOn) println("*** Tabs")
     } else {
-//       println("### Tabs: Selected AppTab Index = -1, currentTab: " + tabManager.__getShortNameSwingObject(tabManager.getCurrentTab))
-println("### Tabs: Selected AppTab Index = -1, currentTab: " + currentTab.getClass.getSimpleName)
-
+      //       println("### Tabs: Selected AppTab Index = -1, currentTab: " + tabManager.getCurrentTab.getClass.getSimpleName)
+      println("### Tabs: Selected AppTab Index = -1, currentTab: " + currentTab.getClass.getSimpleName)
+      currentTab.requestFocusInWindow()
     }
   }
 
@@ -165,13 +166,13 @@ println("### Tabs: Selected AppTab Index = -1, currentTab: " + currentTab.getCla
       if (me.getClickCount() == 1 && me.isControlDown) {
         val currentTab = me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent
         if (currentTab.isInstanceOf[MainCodeTab]) {
-          println(">>> Tabs - " + tabManager.__getShortNameSwingObject(me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent) + " control clicked")
+          println(">>> Tabs - " + me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent.getClass.getSimpleName + " control clicked")
           tabManager.switchToSeparateCodeWindow
         } else {
-          println(" Tabs - " + tabManager.__getShortNameSwingObject(me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent) + " control clicked")
+          println(" Tabs - " + me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent.getClass.getSimpleName + " control clicked")
         }
       } else if (me.getClickCount() == 1) {
-        println("### Tabs - " + tabManager.__getShortNameSwingObject(me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent) + " clicked")
+        println("### Tabs - " + me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent.getClass.getSimpleName + " clicked")
       }
     }
   })

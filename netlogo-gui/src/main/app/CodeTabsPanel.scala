@@ -128,15 +128,15 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
         currentTab = mainCodeTab
       }
 
-      println("    Previous Tab: " + tabManager.__getShortNameSwingObject(previousTab))
+      println("    Previous Tab: " + previousTab.getClass.getSimpleName)
       //tabManager.setCurrentTab(currentTab)
-      println("    Current Tab: " + tabManager.__getShortNameSwingObject(currentTab))
+      println("    Current Tab: " + currentTab.getClass.getSimpleName)
       (previousTab.isInstanceOf[TemporaryCodeTab], currentTab.isInstanceOf[TemporaryCodeTab]) match {
         case (true, false) => tabManager.appTabsPanel.saveModelActions foreach tabManager.menuBar.offerAction
         case (false, true) => tabManager.appTabsPanel.saveModelActions foreach tabManager.menuBar.revokeAction
         case _             =>
       }
-      println("    Current Tab: " + tabManager.__getShortNameSwingObject(currentTab))
+      println("    Current Tab: " + currentTab.getClass.getSimpleName)
       currentTab.requestFocusInWindow()
       tabManager.createCodeTabAccelerators
       // The SwitchedTabsEvent will cause compilation when the user leaves an edited CodeTab. AAB 10/2020
@@ -145,7 +145,7 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
       println("    Undo count: " + tabManager.__countMenuItembyNameAndMenuName("Edit", "Undo"))
       println("*** CodeTabsPanel")
     } else {
-  //     println("### CodeTabsPanel: -1, currentTab: " + tabManager.__getShortNameSwingObject(tabManager.getCurrentTab))
+  //     println("### CodeTabsPanel: -1, currentTab: " + tabManager.getCurrentTab.getClass.getSimpleName)
        println("### Tabs: Selected AppTab Index = -1, currentTab: " + currentTab.getClass.getSimpleName)
 
     }
