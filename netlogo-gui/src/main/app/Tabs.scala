@@ -3,7 +3,8 @@
 package org.nlogo.app
 
 import java.awt.{ Color, Component }
-import java.awt.event.{ ActionEvent, MouseAdapter, MouseEvent, WindowAdapter, WindowEvent }
+//import java.awt.event.{ ActionEvent, MouseAdapter, MouseEvent, WindowAdapter, WindowEvent }
+import java.awt.event.{ ActionEvent, MouseAdapter, MouseEvent }
 import java.awt.print.PrinterAbortException
 import javax.swing.event.{ ChangeEvent, ChangeListener }
 import javax.swing.{ AbstractAction, Action, JTabbedPane }
@@ -81,6 +82,7 @@ class Tabs(workspace:           GUIWorkspace,
     addTab(I18N.gui.get("tabs.info"), infoTab)
     addTab(I18N.gui.get("tabs.code"), mainCodeTab)
 
+    currentTab = interfaceTab
     // If there is not separate code tab, the MainCodeTab belongs to Tabs.
     // Otherwise it will get transferred by CodeTabsPanel.init AAB 10/2020
 
@@ -99,19 +101,19 @@ class Tabs(workspace:           GUIWorkspace,
     tabManager.setAppCodeTabBindings
   }
 
-  jframe.addWindowFocusListener(new WindowAdapter() {
-    override def windowGainedFocus(e: WindowEvent) {
-      val currentTab = getTabs.getSelectedComponent
-      println("   ")
-      println("*** Tabs - windowGainedFocus")
-      tabManager.setCurrentTab(currentTab)
-      println("*** Tabs")
-      if (tabManager.getMainCodeTab.dirty) {
-        // The SwitchedTabsEvent can lead to compilation. AAB 10/2020
-         new AppEvents.SwitchedTabsEvent(tabManager.getMainCodeTab, currentTab).raise(getTabs)
-      }
-    }
-    })
+  // jframe.addWindowFocusListener(new WindowAdapter() {
+  //   override def windowGainedFocus(e: WindowEvent) {
+  //     val currentTab = getTabs.getSelectedComponent
+  //     println("   ")
+  //     println("*** Tabs - windowGainedFocus")
+  //     tabManager.setCurrentTab(currentTab)
+  //     println("*** Tabs")
+  //     if (tabManager.getMainCodeTab.dirty) {
+  //       // The SwitchedTabsEvent can lead to compilation. AAB 10/2020
+  //        new AppEvents.SwitchedTabsEvent(tabManager.getMainCodeTab, currentTab).raise(getTabs)
+  //     }
+  //   }
+  //   })
 
   def stateChanged(e: ChangeEvent) = {
     val debugOn = this.getTabCount > 1 // before init happens
@@ -122,11 +124,12 @@ class Tabs(workspace:           GUIWorkspace,
     // In that case do nothing. The correct action will happen when
     // the selected index is reset. AAB 10/2020
     if (tabManager.getSelectedAppTabIndex != -1) {
-      val previousTab = tabManager.getCurrentTab
+      // aab val previousTab = tabManager.getCurrentTab
+      val previousTab = currentTab
       currentTab = getSelectedComponent
       if (debugOn) println("*** Tabs - stateChanged")
       if (debugOn) println("    Previous Tab: " + tabManager.__getShortNameSwingObject(previousTab))
-      tabManager.setCurrentTab(currentTab)
+      //tabManager.setCurrentTab(currentTab)
       if (debugOn) println("    Current Tab: " + tabManager.__getShortNameSwingObject(currentTab))
       previousTab match {
         case mt: MenuTab => mt.activeMenuActions foreach menu.revokeAction
@@ -149,7 +152,9 @@ class Tabs(workspace:           GUIWorkspace,
       if (debugOn) println("    Undo count: " + tabManager.__countMenuItembyNameAndMenuName("Edit", "Undo"))
       if (debugOn) println("*** Tabs")
     } else {
-       println("### Tabs: Selected AppTab Index = -1, currentTab: " + tabManager.__getShortNameSwingObject(tabManager.getCurrentTab))
+//       println("### Tabs: Selected AppTab Index = -1, currentTab: " + tabManager.__getShortNameSwingObject(tabManager.getCurrentTab))
+println("### Tabs: Selected AppTab Index = -1, currentTab: " + currentTab.getClass.getSimpleName)
+
     }
   }
 

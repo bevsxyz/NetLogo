@@ -57,6 +57,7 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
     addTab(I18N.gui.get("tabs.code"), mainCodeTab)
     initManagerMonitor(manager, monitor)
 
+    currentTab = mainCodeTab
     // Currently Ctrl-CLOSE_BRACKET = Ctrl-] closes the separate code window. AAB 10/2020
     tabManager.setSeparateCodeTabBindings()
     getAppFrame.addLinkComponent(getCodeTabContainer)
@@ -82,7 +83,7 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
         } else {
           println("   ")
           println("*** CodeTabsPanel - mouse click ")
-          tabManager.setCurrentTab(currentTab)
+          // aabtabManager.setCurrentTab(currentTab)
           println("   Request Focus")
           currentTab.requestFocusInWindow()
           println("***")
@@ -103,29 +104,32 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
 
   // If focus returns to the code tab window, make its currentTab
   // be selected. AAB 10/2020
-  codeTabContainer.addWindowFocusListener(new WindowAdapter() {
-    override def  windowGainedFocus(e: WindowEvent) {
-      val currentTab = codeTabsPanel.getSelectedComponent
-      println("   ")
-      println("*** CodeTabsPanel - windowGainedFocus")
-      tabManager.setCurrentTab(currentTab)
-      println("*** CodeTabsPanel")
-    }
-  })
+  // codeTabContainer.addWindowFocusListener(new WindowAdapter() {
+  //   override def  windowGainedFocus(e: WindowEvent) {
+  //     val currentTab = codeTabsPanel.getSelectedComponent
+  //     println("   ")
+  //     println("*** CodeTabsPanel - windowGainedFocus")
+  //     tabManager.setCurrentTab(currentTab)
+  //     println("*** CodeTabsPanel")
+  //   }
+  // })
 
   def stateChanged(e: ChangeEvent) = {
     // for explanation of index -1, see comment in Tabs.stateChanged. AAB 10/2020
     if (tabManager.getSelectedAppTabIndex != -1) {
-      val previousTab = tabManager.getCurrentTab
+      println("   ")
+      println("*** CodeTabsPanel - stateChanged")
+      //val previousTab = tabManager.getCurrentTab
+      val previousTab = currentTab
       currentTab = getSelectedComponent
       // currentTab could be null in the case where the CodeTabPanel has only the MainCodeTab. AAB 10/2020
       if (currentTab == null) {
+        println("    current tab was null")
         currentTab = mainCodeTab
       }
-      println("   ")
-      println("*** CodeTabsPanel - stateChanged")
+
       println("    Previous Tab: " + tabManager.__getShortNameSwingObject(previousTab))
-      tabManager.setCurrentTab(currentTab)
+      //tabManager.setCurrentTab(currentTab)
       println("    Current Tab: " + tabManager.__getShortNameSwingObject(currentTab))
       (previousTab.isInstanceOf[TemporaryCodeTab], currentTab.isInstanceOf[TemporaryCodeTab]) match {
         case (true, false) => tabManager.appTabsPanel.saveModelActions foreach tabManager.menuBar.offerAction
@@ -141,7 +145,9 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
       println("    Undo count: " + tabManager.__countMenuItembyNameAndMenuName("Edit", "Undo"))
       println("*** CodeTabsPanel")
     } else {
-       println("### CodeTabsPanel: -1, currentTab: " + tabManager.__getShortNameSwingObject(tabManager.getCurrentTab))
+  //     println("### CodeTabsPanel: -1, currentTab: " + tabManager.__getShortNameSwingObject(tabManager.getCurrentTab))
+       println("### Tabs: Selected AppTab Index = -1, currentTab: " + currentTab.getClass.getSimpleName)
+
     }
   }
 

@@ -111,16 +111,16 @@ class AppTabManager(val appTabsPanel:          Tabs,
 
   def getSelectedAppTabIndex() = { appTabsPanel.getSelectedIndex }
 
-  private var currentTab: Component = { appTabsPanel.interfaceTab }
-
-  def getCurrentTab(): Component = {
-    currentTab
-  }
-
-  def setCurrentTab(tab: Component): Unit = {
-    println("    set current tab: " + __getShortNameSwingObject(tab))
-    currentTab = tab
-  }
+  // private var currentTab: Component = { appTabsPanel.interfaceTab }
+  //
+  // def getCurrentTab(): Component = {
+  //   currentTab
+  // }
+  //
+  // def setCurrentTab(tab: Component): Unit = {
+  //   println("    set current tab: " + __getShortNameSwingObject(tab))
+  //   currentTab = tab
+  // }
 
   // Input: combinedTabIndex - index a tab would have if there were no separate code tab.
   // Returns (tabOwner, tabIndex)
@@ -228,7 +228,8 @@ class AppTabManager(val appTabsPanel:          Tabs,
       if (selectedIndex == tabIndex) {
         // Saves selected tab as current tab
         println("    Helper, setCurrentTab: " + __getShortNameSwingObject(tabOwner.getComponentAt(tabIndex)))
-        setCurrentTab(tabOwner.getComponentAt(tabIndex))
+        // aab setCurrentTab(tabOwner.getComponentAt(tabIndex))
+        tabOwner.setCurrentTab(tabOwner.getComponentAt(tabIndex))
         // Deselects the tab
         println("    Helper, setSelectedAppTab(-1) ")
         setSelectedAppTab(-1)
@@ -287,7 +288,8 @@ class AppTabManager(val appTabsPanel:          Tabs,
         println("   ")
         println("    Hide count: " + __countMenuItembyNameAndMenuName("Tools", "Hide Command Center"))
         println("    Undo count: " + __countMenuItembyNameAndMenuName("Edit", "Undo"))
-        println("    currentTab: " + __getShortNameSwingObject(getCurrentTab))
+        println("    appTabsPanel currentTab: " + appTabsPanel.getCurrentTab.getClass.getSimpleName)
+        println("    codeTabsPanel currentTab: " + __getShortNameSwingObject(codeTabsPanel.getCurrentTab))
         println("### End tab unification")
       } // end case where work was done. AAB 10/2020
     }
@@ -334,7 +336,8 @@ class AppTabManager(val appTabsPanel:          Tabs,
       println("   ")
       println("    Hide count: " + __countMenuItembyNameAndMenuName("Tools", "Hide Command Center"))
       println("    Undo count: " + __countMenuItembyNameAndMenuName("Edit", "Undo"))
-      println("    currentTab: " + __getShortNameSwingObject(getCurrentTab))
+      println("    appTabsPanel currentTab: " + appTabsPanel.getCurrentTab.getClass.getSimpleName)
+      println("    codeTabsPanel currentTab: " + __getShortNameSwingObject(codeTabsPanel.getCurrentTab))
       println("### End tab separation")
     }
   }
@@ -583,7 +586,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
    * Gets selected non-code tab if any , whether or not separate code window exists.
    */
   def getSelectedNonCodeTabComponent(): Option[Component] = {
-    val index = appTabsPanel.getSelectedIndex
+    val index = appTabsPanel.getCurrentTab
     if (index == -1) {
       return None
     }
