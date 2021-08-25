@@ -72,15 +72,20 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
       // A single mouse click switches focus to a tab. AAB 10/2020
       if (me.getClickCount() == 1) {
         val currentTab = me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent
-        tabManager.setCurrentTab(currentTab)
-        currentTab.requestFocus()
-      }
-      // A single mouse control-click on the MainCodeTab in a separate window
-      // closes the code window, and takes care of the bookkeeping. AAB 10/2020
-      if (me.getClickCount() == 1 && me.isControlDown) {
-        val currentTab = me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent
-        if (currentTab.isInstanceOf[MainCodeTab]) {
+        // A single mouse control-click on the MainCodeTab in a separate window
+        // closes the code window, and takes care of the bookkeeping. AAB 10/2020
+        if (me.isControlDown && currentTab.isInstanceOf[MainCodeTab]) {
+          println("   ")
+          println("   ")
+          println(">>> CodeTabsPanel - Code Tab control clicked")
           tabManager.switchToNoSeparateCodeWindow
+        } else {
+          println("   ")
+          println("*** CodeTabsPanel - mouse click ")
+          setCurrentTab(currentTab)
+          println("    Focus requested: " + currentTab.getClass.getSimpleName)
+          currentTab.requestFocusInWindow()
+          println("***")
         }
       }
     }
@@ -98,20 +103,20 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
   codeTabContainer.addWindowFocusListener(new WindowAdapter() {
     override def  windowGainedFocus(e: WindowEvent) {
       val currentTab = codeTabsPanel.getSelectedComponent
-      tabManager.setCurrentTab(currentTab)
+      setCurrentTab(currentTab)
     }
   })
 
   def stateChanged(e: ChangeEvent) = {
     // for explanation of index -1, see comment in Tabs.stateChanged. AAB 10/2020
     if (tabManager.getSelectedAppTabIndex != -1) {
-      val previousTab = tabManager.getCurrentTab
+      val previousTab = getCurrentTab
       currentTab = getSelectedComponent
       // currentTab could be null in the case where the CodeTabPanel has only the MainCodeTab. AAB 10/2020
       if (currentTab == null) {
         currentTab = mainCodeTab
       }
-      tabManager.setCurrentTab(currentTab)
+      setCurrentTab(currentTab)
       previousTab match {
         case mt: MenuTab => mt.activeMenuActions foreach tabManager.menuBar.revokeAction
         case _ =>

@@ -4,6 +4,7 @@ package org.nlogo.app
 
 import java.awt.{ Color, Component }
 import java.awt.event.{ ActionEvent, MouseAdapter, MouseEvent, WindowAdapter, WindowEvent }
+// aab import java.awt.event.{ ActionEvent, MouseAdapter, MouseEvent }
 import java.awt.print.PrinterAbortException
 import javax.swing.event.{ ChangeEvent, ChangeListener }
 import javax.swing.{ AbstractAction, Action, JTabbedPane }
@@ -101,7 +102,10 @@ class Tabs(workspace:           GUIWorkspace,
   jframe.addWindowFocusListener(new WindowAdapter() {
     override def windowGainedFocus(e: WindowEvent) {
       val currentTab = getTabs.getSelectedComponent
-      tabManager.setCurrentTab(currentTab)
+      println("   ")
+      println("*** Tabs - windowGainedFocus")
+      setCurrentTab(currentTab)
+      println("*** Tabs")
       if (tabManager.getMainCodeTab.dirty) {
         // The SwitchedTabsEvent can lead to compilation. AAB 10/2020
          new AppEvents.SwitchedTabsEvent(tabManager.getMainCodeTab, currentTab).raise(getTabs)
@@ -116,9 +120,9 @@ class Tabs(workspace:           GUIWorkspace,
     // In that case do nothing. The correct action will happen when
     // the selected index is reset. AAB 10/2020
     if (tabManager.getSelectedAppTabIndex != -1) {
-      val previousTab = tabManager.getCurrentTab
+      val previousTab = getCurrentTab
       currentTab = getSelectedComponent
-      tabManager.setCurrentTab(currentTab)
+      setCurrentTab(currentTab)
       previousTab match {
         case mt: MenuTab => mt.activeMenuActions foreach menu.revokeAction
         case _ =>
