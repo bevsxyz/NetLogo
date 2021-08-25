@@ -42,7 +42,16 @@ abstract class AbstractTabsPanel(val workspace:           GUIWorkspace,
   def getAppJFrame() = { jframe }
   var fileManager: FileManager = null
   var dirtyMonitor: DirtyMonitor = null
-  var currentTab: Component = interfaceTab
+  var currentTab: Component = null
+
+  def setCurrentTab(tab: Component): Unit = {
+    println("    set current tab: " + tab.getClass.getSimpleName)
+    currentTab = tab
+  }
+
+  def getCurrentTab(): Component = {
+    currentTab
+  }
 
   def initManagerMonitor(manager: FileManager, monitor: DirtyMonitor): Unit =  {
     fileManager = manager

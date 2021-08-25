@@ -4,7 +4,7 @@ package org.nlogo.app
 
 import java.awt.Component
 import java.awt.event.{ ActionEvent, KeyEvent }
-import javax.swing.{ Action, AbstractAction, ActionMap, InputMap, JComponent, JMenu, JMenuItem, JTabbedPane, KeyStroke }
+import javax.swing.{ Action, AbstractAction, ActionMap, InputMap, JComponent, JTabbedPane, KeyStroke }
 
 import org.nlogo.app.codetab.{ CodeTab }
 import org.nlogo.swing.UserAction
@@ -111,15 +111,15 @@ class AppTabManager(val appTabsPanel:          Tabs,
 
   def getSelectedAppTabIndex() = { appTabsPanel.getSelectedIndex }
 
-  private var currentTab: Component = { appTabsPanel.interfaceTab }
-
-  def getCurrentTab(): Component = {
-    currentTab
-  }
-
-  def setCurrentTab(tab: Component): Unit = {
-    currentTab = tab
-  }
+  // aab private var currentTab: Component = { appTabsPanel.interfaceTab }
+  //
+  // def getCurrentTab(): Component = {
+  //   currentTab
+  // }
+  //
+  // def setCurrentTab(tab: Component): Unit = {
+  //   currentTab = tab
+  // }
 
   // Input: combinedTabIndex - index a tab would have if there were no separate code tab.
   // Returns (tabOwner, tabIndex)
@@ -137,7 +137,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
     // check if it can refer to the a separate code tab. AAB 10/2020
     if (combinedTabIndex >= appTabCount) {
       codeTabsPanelOption match {
-        case None                => throw new IndexOutOfBoundsException
+        case None           => throw new IndexOutOfBoundsException
         case Some(codeTabsPanel) => {
           // combinedTabIndex could be too large for the two Panels combined. AAB 10/2020
           if (combinedTabIndex >= appTabCount + codeTabsPanel.getTabCount) {
@@ -175,7 +175,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
           if (aTabIndex != -1) {
             return(codeTabsPanel, aTabIndex)
           }
-        case None                =>
+        case None           =>
       }
     }
     (null.asInstanceOf[AbstractTabsPanel], -1)
@@ -199,15 +199,25 @@ class AppTabManager(val appTabsPanel:          Tabs,
   def setPanelsSelectedIndex(index: Int): Unit =  {
     val (tabOwner, tabIndex) = ownerAndIndexFromCombinedIndex(index)
     if (tabOwner.isInstanceOf[CodeTabsPanel]) {
-      tabOwner.requestFocus
+      println("    Helper, request FocusInWindow: " + tabOwner.getClass.getSimpleName)
+      tabOwner.requestFocusInWindow
+      println("    Helper, setSelectedIndex: " + tabOwner.getClass.getSimpleName + " index " + tabIndex)
       tabOwner.setSelectedIndex(tabIndex)
     } else {
       val selectedIndex = getSelectedAppTabIndex
       if (selectedIndex == tabIndex) {
-       setSelectedAppTab(-1)
+        // Saves selected tab as current tab
+        println("    Helper, setCurrentTab: " + tabOwner.getComponentAt(tabIndex).getClass.getSimpleName)
+        // aab setCurrentTab(tabOwner.getComponentAt(tabIndex))
+        tabOwner.setCurrentTab(tabOwner.getComponentAt(tabIndex))
+        // Deselects the tab
+        println("    Helper, setSelectedAppTab(-1) ")
+        setSelectedAppTab(-1)
       }
-       setSelectedAppTab(tabIndex)
-      }
+      // Reselects the tab in the Application window
+      println("    Helper, setSelectedIndex: " + appTabsPanel.getClass.getSimpleName + " index " + tabIndex)
+      setSelectedAppTab(tabIndex)
+    }
   }
 
   def getIndexOfCodeTab(tab: CodeTab): Int = {
@@ -243,6 +253,8 @@ class AppTabManager(val appTabsPanel:          Tabs,
     codeTabsPanelOption match {
       case None                => // nothing to do
       case Some(codeTabsPanel) => {
+        println("   ")
+        println("### Begin tab unification")
         setCodeTabsPanelOption(None)
         // Move the tabs to the AppTabsPanel (Tabs), retaining order. AAB 10/2020
         for (_ <- 0 until codeTabsPanel.getTabCount) {
@@ -250,9 +262,16 @@ class AppTabManager(val appTabsPanel:          Tabs,
         }
         codeTabsPanel.getCodeTabContainer.dispose
         appTabsPanel.mainCodeTab.getPoppingCheckBox.setSelected(false)
+        println("appTabsPanel mainCodeTab request FocusInWindow")
         appTabsPanel.mainCodeTab.requestFocus
         appTabsPanel.getAppFrame.removeLinkComponent(codeTabsPanel.getCodeTabContainer)
         Event.rehash()
+        println("   ")
+        println("    Hide count: " + __countMenuItembyNameAndMenuName("Tools", "Hide Command Center"))
+        println("    Undo count: " + __countMenuItembyNameAndMenuName("Edit", "Undo"))
+        println("    appTabsPanel currentTab: " + appTabsPanel.getCurrentTab.getClass.getSimpleName)
+        println("    codeTabsPanel currentTab: " + codeTabsPanel.getCurrentTab.getClass.getSimpleName)
+        println("### End tab unification")
       } // end case where work was done. AAB 10/2020
     }
   }
@@ -260,6 +279,8 @@ class AppTabManager(val appTabsPanel:          Tabs,
   // Does the work needed to go back to the separate code window state
   def switchToSeparateCodeWindow(): Unit = {
     if (!isCodeTabSeparate) {
+      println("   ")
+      println("### Begin tab separation")
       val codeTabsPanel = new CodeTabsPanel(appTabsPanel.workspace,
         appTabsPanel.interfaceTab,
         appTabsPanel.externalFileManager,
@@ -267,6 +288,14 @@ class AppTabManager(val appTabsPanel:          Tabs,
         appTabsPanel.externalFileTabs)
       codeTabsPanelOption = Some(codeTabsPanel)
       codeTabsPanel.setTabManager(this)
+
+      // If the Selected Component in the App Tabs Panel was the CodeTab
+      // set it to be the Interface Tab, otherwise moving the CodeTab will
+      // cause swing to make the Info Tab the Selected Component
+      if (appTabsPanel.getSelectedComponent == appTabsPanel.mainCodeTab) {
+        appTabsPanel.setSelectedComponent(appTabsPanel.interfaceTab)
+      }
+
       // Move tabs from appTabsPanel to codeTabsPanel.
       // Iterate starting at last tab so that indexing remains valid when
       // tabs are removed (add to codeTabsPanel), AAB 10/2020
@@ -280,7 +309,6 @@ class AppTabManager(val appTabsPanel:          Tabs,
            appTabsPanel.getToolTipTextAt(n),
            0)
         }
-
       }
 
       appTabsPanel.mainCodeTab.getPoppingCheckBox.setSelected(true)
@@ -289,6 +317,14 @@ class AppTabManager(val appTabsPanel:          Tabs,
       appTabsPanel.getAppFrame.addLinkComponent(codeTabsPanel.getCodeTabContainer)
       createCodeTabAccelerators()
       Event.rehash()
+      println("   ")
+      println("    Hide count: " + __countMenuItembyNameAndMenuName("Tools", "Hide Command Center"))
+      println("    Undo count: " + __countMenuItembyNameAndMenuName("Edit", "Undo"))
+      println("    appTabsPanel currentTab: " + appTabsPanel.getCurrentTab.getClass.getSimpleName)
+      println("    codeTabsPanel currentTab: " + codeTabsPanel.getCurrentTab.getClass.getSimpleName)
+      println("codeTabsPanel mainCodeTab request FocusInWindow")
+      codeTabsPanel.mainCodeTab.requestFocusInWindow
+      println("### End tab separation")
     }
   }
 
@@ -311,7 +347,6 @@ class AppTabManager(val appTabsPanel:          Tabs,
       case Some(codeTabsPanel) => {
         for (i <- 0 until getAppMenuBar.getMenuCount) {
           val  item = getAppMenuBar.getMenu(i)
-          // getMenu returns null for separators
           if (item != null) {
             copyMenuAccelerators(item)
           }
@@ -328,20 +363,17 @@ class AppTabManager(val appTabsPanel:          Tabs,
   }
 
   // For a Menu - copy Menu Items Accelerators
-  def copyMenuAccelerators(menu: JMenu): Unit = {
-    require(menu != null)
+  def copyMenuAccelerators(menu: javax.swing.JMenu): Unit = {
     codeTabsPanelOption match {
       case None                =>
       case Some(codeTabsPanel) => {
         for (i <- 0 until menu.getItemCount) {
           val  item = menu.getItem(i)
-          // getItem returns null for non-menu items such as separators
-          // getAccelerator returns null when there is no accelerator
           if (item != null && item.getAccelerator != null) {
             addCodeTabContainerKeyStroke(item.getAccelerator, item.getAction, item.getActionCommand)
           }
-          if (item.isInstanceOf[JMenu]) {
-            copyMenuAccelerators(item.asInstanceOf[JMenu])
+          if (item.isInstanceOf[javax.swing.JMenu]) {
+            copyMenuAccelerators(item.asInstanceOf[javax.swing.JMenu])
           }
         }
       }
@@ -395,10 +427,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
   }
 
   // Get Named App Menu
-  def getMenuByName(menuName: String): Option[JMenu] = {
-    if (getAppMenuBar == null) {
-      return None
-    }
+  def getMenuByName(menuName: String): Option[javax.swing.JMenu] = {
     for (i <- 0 until getAppMenuBar.getMenuCount) {
       val  item = getAppMenuBar.getMenu(i)
       if (item != null) {
@@ -409,6 +438,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
     }
     None
   }
+
 
   // *** Begin official tab manipulation methods ***
   // Code outside the org.nlogo.app and org.nlogo.app.codetab packages must
@@ -462,8 +492,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
     *
     * @param tab The Component to remove.
     */
-   def removeTab(tab: Component): Unit = {
-    require (tab != null)
+  def removeTab(tab: Component): Unit = {
     val (tabOwner, _) = ownerAndIndexOfTab(tab)
     if (tabOwner != null) {
       tabOwner.remove(tab)
@@ -482,7 +511,6 @@ class AppTabManager(val appTabsPanel:          Tabs,
     * @throws Exception if one Tab is a CodeTab and the other is not.
     */
   def replaceTab(oldTab: Component, newTab: Component): Unit = {
-    require(oldTab != null && newTab != null)
 
     if (oldTab.isInstanceOf[CodeTab] && !oldTab.isInstanceOf[CodeTab]) {
       throw new Exception("A CodeTab must be replaced by a CodeTab")
@@ -508,7 +536,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
   def getTotalTabCount(): Int = {
     val appTabCount = appTabsPanel.getTabCount
     codeTabsPanelOption match {
-      case None                => appTabCount
+      case None           => appTabCount
       case Some(codeTabsPanel) => appTabCount + codeTabsPanel.getTabCount
     }
   }
@@ -519,18 +547,27 @@ class AppTabManager(val appTabsPanel:          Tabs,
    * @param tab the Component to be selected
    */
   def setPanelsSelectedComponent(tab: Component): Unit = {
-    require(tab != null)
     val (tabOwner, tabIndex) = ownerAndIndexOfTab(tab)
     if (tabOwner.isInstanceOf[CodeTabsPanel]) {
-      tabOwner.requestFocus
+      println("    Helper, request FocusInWindow: " + tabOwner.getClass.getSimpleName)
+      tabOwner.requestFocusInWindow
+      println("    Helper, setSelectedIndex: " + tabOwner.getClass.getSimpleName + " index " + tabIndex)
       tabOwner.setSelectedIndex(tabIndex)
     } else {
       val selectedIndex = getSelectedAppTabIndex
       if (selectedIndex == tabIndex) {
+        // Saves selected tab as current tab
+        println("    Helper, setCurrentTab: " + tabOwner.getComponentAt(tabIndex).getClass.getSimpleName)
+        // aab setCurrentTab(tabOwner.getComponentAt(tabIndex))
+        tabOwner.setCurrentTab(tabOwner.getComponentAt(tabIndex))
+        // Deselects the tab
+        println("    Helper, setSelectedAppTab(-1) ")
         setSelectedAppTab(-1)
       }
-        setSelectedAppTab(tabIndex)
-      }
+      // Reselects the tab in the Application window
+      println("    Helper, setSelectedIndex: " + appTabsPanel.getClass.getSimpleName + " index " + tabIndex)
+      setSelectedAppTab(tabIndex)
+    }
   }
 
   /**
@@ -572,7 +609,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
          }
          val tab = codeTabsPanel.getComponentAt(index)
          // All tabs in codeTabsPanel are code tabs 11/2020 AAB
-          return Some(tab)
+         return Some(tab)
        }
      }
    }
@@ -591,17 +628,15 @@ class AppTabManager(val appTabsPanel:          Tabs,
         println("CodeTabs count " + codeTabsPanel.getTabCount)
         __printTabsOfTabsPanel(codeTabsPanel)
       }
-      case None                => println("No CodeTabs ")
+      case None           => println("No CodeTabs ")
     }
     println("")
   }
 
   // Prints list of tabs in a JTabbedPane
   def __printTabsOfTabsPanel(pane: JTabbedPane): Unit = {
-    if (pane != null) {
-      for (n <- 0 until pane.getTabCount) {
-        __printSwingObject(pane.getComponentAt(n), "")
-      }
+    for (n <- 0 until pane.getTabCount) {
+      __printSwingObject(pane.getComponentAt(n), "")
     }
   }
 
@@ -610,8 +645,8 @@ class AppTabManager(val appTabsPanel:          Tabs,
     println("Actions:")
     org.nlogo.app.TabsMenu.tabActions(this).foreach(action => {
       action.asInstanceOf[org.nlogo.swing.UserAction.MenuAction].accelerator match {
-        case None                    =>
-        case Some(accKey: KeyStroke) =>  {
+        case None                =>
+        case Some(accKey: javax.swing.KeyStroke) =>  {
           val actionName = action.getValue(javax.swing.Action.NAME) match {
             case s: String => s
             case _         => accKey.toString
@@ -630,7 +665,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
   // Prints InputMap for Separate Code Window (If any.)
   def __printSeparateCodeFrameInputMap(): Unit = {
     codeTabsPanelOption match {
-      case None                => println("No Separate Code Window.")
+      case None           => println("No Separate Code Window.")
       case Some(codeTabsPanel) => {
         val contentPane = codeTabsPanel.getCodeTabContainer.getContentPane.asInstanceOf[JComponent]
         __printInputMap(contentPane)
@@ -656,7 +691,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
   // Prints InputMap and ActionMap for Separate Code Window (If any.)
   def __printSeparateCodeFrameInputActionMaps(): Unit = {
     codeTabsPanelOption match {
-      case None                => println("No Separate Code Window.")
+      case None           => println("No Separate Code Window.")
       case Some(codeTabsPanel) => {
         val contentPane = codeTabsPanel.getCodeTabContainer.getContentPane.asInstanceOf[JComponent]
         __printInputActionMaps(contentPane)
@@ -682,8 +717,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
   }
 
   // For a Menu - prints Menu Items and their Accelerators
-  def __printMenuItems(menu: JMenu, level: Int): Unit = {
-    if (menu == null) { return }
+  def __printMenuItems(menu: javax.swing.JMenu, level: Int): Unit = {
     for (i <- 0 until menu.getItemCount) {
       val  item = menu.getItem(i)
       if (item != null) {
@@ -692,59 +726,12 @@ class AppTabManager(val appTabsPanel:          Tabs,
         if (accelerator != null) {
           println(indent(level * 4) + "Accelerator: " + accelerator);
         }
-        if (item.isInstanceOf[JMenu]) {
-          __printMenuItems(item.asInstanceOf[JMenu], level + 1);
+        if (item.isInstanceOf[javax.swing.JMenu]) {
+          __printMenuItems(item.asInstanceOf[javax.swing.JMenu], level + 1);
         }
       } else {
-        println(indent(level * 2) + "Separator");
+        println(indent(level * 2) + "Separater");
       }
-    }
-  }
-
-  // For a Menu - prints Menu Items and their Accelerators
-  def __printMenuItem(menuItem: JMenuItem, level: Int): Unit = {
-    if (menuItem == null) { return }
-    if (menuItem.isInstanceOf[JMenu]) {
-      __printMenuItems(menuItem.asInstanceOf[JMenu], 1);
-    } else {
-      println(menuItem.getText)
-      val accelerator = menuItem.getAccelerator
-      if (accelerator != null) {
-        println(indent(level * 2) + "Accelerator: " + accelerator);
-      }
-    }
-  }
-
-  // Get Named Item from Menu
-  def __getMenuItembyName(menu: JMenu, menuItemName: String): Option[JMenuItem] = {
-    if (menu == null) {
-      return None
-    }
-    for (i <- 0 until menu.getItemCount) {
-      val  item = menu.getItem(i)
-      if (item != null) {
-        if (item.getText() == menuItemName) {
-          return Some(item)
-        }
-      }
-    }
-    None
-  }
-
-  // Get Named Item from  named Menu
-  def __getMenuItembyNameAndMenuName(menuName: String, menuItemName: String): Option[JMenuItem] = {
-    getMenuByName(menuName)  match {
-      case None       => return(None)
-      case Some(menu) =>  {
-        return __getMenuItembyName(menu, menuItemName)
-      }
-    }
-  }
-
-  def __printMenuItembyNameAndMenuName(menuName: String, menuItemName: String): Unit = {
-    __getMenuItembyNameAndMenuName(menuName, menuItemName) match {
-      case None           => println("Menu Item '" + menuName + ":" + menuItemName + "' does not exist.")
-      case Some(menuItem) => __printMenuItem(menuItem, 1)
     }
   }
 
@@ -769,7 +756,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
   // For App MenuBar - Prints Named Menu
   def __printAppMenuByName(menuName: String): Unit = {
     getMenuByName(menuName).fold(println(menuName + " Menu not found"))( {
-      println(menuName + " Menu")
+      println(getAppMenuBar + " Menu")
       __printMenuItems(_, 1)
     })
   }
@@ -777,7 +764,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
   // For a MenuBar - Print Accelerators of Named Menu
   def __printAppMenuAcceleratorsByName(menuName: String): Unit = {
       getMenuByName(menuName)  match {
-      case None       => println(menuName + " Menu not found")
+      case None                => println(menuName + " Menu not found")
       case Some(menu) =>  {
         println(menuName + " Menu")
         __printMenuAccelerators(menu)
@@ -796,15 +783,14 @@ class AppTabManager(val appTabsPanel:          Tabs,
   }
 
   // For a Menu - print Menu Items Accelerators
-  def __printMenuAccelerators(menu: JMenu): Unit = {
-    if (menu == null) { return }
+  def __printMenuAccelerators(menu: javax.swing.JMenu): Unit = {
     for (i <- 0 until menu.getItemCount) {
       val  item = menu.getItem(i)
       if (item != null && item.getAccelerator != null) {
         println(item.getActionCommand + ": " + item.getAccelerator)
       }
-      if (item.isInstanceOf[JMenu]) {
-        __printMenuAccelerators(item.asInstanceOf[JMenu])
+      if (item.isInstanceOf[javax.swing.JMenu]) {
+        __printMenuAccelerators(item.asInstanceOf[javax.swing.JMenu])
       }
     }
   }
@@ -831,25 +817,6 @@ class AppTabManager(val appTabsPanel:          Tabs,
       case Some(theObject) =>  __printNonNullSwingObject(theObject, description)
     }
   }
-
-  def __countMenuItembyNameAndMenuName(menuName: String, menuItemName: String): Int = {
-    getMenuByName(menuName)  match {
-      case None       => return 0
-      case Some(menu) =>  {
-        var itemCount = 0
-        for (i <- 0 until menu.getItemCount) {
-          val item = menu.getItem(i)
-          if (item != null) {
-            if (item.getText() == menuItemName) {
-              itemCount = itemCount + 1
-            }
-          }
-        }
-        return itemCount
-      }
-    }
-  }
-
 
   // *** End debugging tools AAB 10/2020.
 }
