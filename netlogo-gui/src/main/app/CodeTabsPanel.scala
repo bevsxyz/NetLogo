@@ -104,6 +104,34 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
     override def  windowGainedFocus(e: WindowEvent) {
       val currentTab = codeTabsPanel.getSelectedComponent
       setCurrentTab(currentTab)
+      println("   " + "ID: " + e.getID)
+      println("   " + "source: " + e.getSource.getClass.getSimpleName)
+      println("   " + "window: " + e.getWindow.getClass.getSimpleName)
+      println("   " + "opposite window: " +   e.getOppositeWindow.getClass.getSimpleName)
+      println("   " + getCodeTabContainer.getClass.getSimpleName + " is Active " + getCodeTabContainer.isActive())
+      println("   " + getCodeTabContainer.getClass.getSimpleName + " is Focused " + getCodeTabContainer.isFocused())
+      var focusOwner = getCodeTabContainer.getFocusOwner
+      if (focusOwner != null) {
+        println("   Focus owner is " + focusOwner.getClass.getSimpleName)
+      } else {
+        println("No focus owner.")
+      }
+
+      focusOwner = getCodeTabContainer.getMostRecentFocusOwner
+      if (focusOwner != null) {
+        println("   Most Recent FocusOwner is " + focusOwner.getClass.getSimpleName)
+      } else {
+        println("No Most Recent FocusOwner.")
+      }
+
+      val result = currentTab.requestFocusInWindow()
+      println("   " + "requestFocusInWindow succeeded: " + result)
+      focusOwner = getCodeTabContainer.getFocusOwner
+      if (focusOwner != null) {
+        println("   Focus owner is " + focusOwner.getClass.getSimpleName)
+      } else {
+        println("No focus owner.")
+      }
     }
   })
 

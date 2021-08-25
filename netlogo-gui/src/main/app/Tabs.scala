@@ -99,12 +99,48 @@ class Tabs(workspace:           GUIWorkspace,
     tabManager.setAppCodeTabBindings
   }
 
+  def getSimpleNameOrNull(c: Any) : String = {
+    if (c == null){
+      return "<null>"
+    } else {
+      return c.getClass.getSimpleName
+    }
+  }
+
   jframe.addWindowFocusListener(new WindowAdapter() {
     override def windowGainedFocus(e: WindowEvent) {
       val currentTab = getTabs.getSelectedComponent
       println("   ")
       println("*** Tabs - windowGainedFocus")
       setCurrentTab(currentTab)
+      println("   " + "ID: " + e.getID)
+      println("   " + "source: " + getSimpleNameOrNull(e.getSource))
+      println("   " + "window: " + getSimpleNameOrNull(e.getWindow))
+      println("   " + "opposite window: " +   getSimpleNameOrNull(e.getOppositeWindow))
+      println("   " + getSimpleNameOrNull(getAppJFrame) + " is Active " + getAppJFrame.isActive())
+      println("   " + getSimpleNameOrNull(getAppJFrame) + " is Focused " + getAppJFrame.isFocused())
+      var focusOwner = getAppJFrame.getFocusOwner
+      if (focusOwner != null) {
+        println("   Focus owner is " + getSimpleNameOrNull(focusOwner))
+      } else {
+        println("No focus owner.")
+      }
+
+      focusOwner = getAppJFrame.getMostRecentFocusOwner
+      if (focusOwner != null) {
+        println("   Most Recent FocusOwner is " + getSimpleNameOrNull(focusOwner))
+      } else {
+        println("No Most Recent FocusOwner.")
+      }
+
+      val result = currentTab.requestFocusInWindow()
+      println("   " + "requestFocusInWindow succeeded: " + result)
+      focusOwner = getAppJFrame.getFocusOwner
+      if (focusOwner != null) {
+        println("   Focus owner is " + getSimpleNameOrNull(focusOwner))
+      } else {
+        println("No focus owner.")
+      }
       println("*** Tabs")
       if (tabManager.getMainCodeTab.dirty) {
         // The SwitchedTabsEvent can lead to compilation. AAB 10/2020

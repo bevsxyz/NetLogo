@@ -846,6 +846,14 @@ class AppTabManager(val appTabsPanel:          Tabs,
     }
   }
 
+  def __getSimpleName(c: Any) : String = {
+    if (c == null){
+      return "<null>"
+    } else {
+      return c.getClass.getSimpleName
+    }
+  }
+
   def __printNonNullSwingObject(obj: java.awt.Component, description: String): Unit = {
     val pattern = """(^[^\[]*)\[(.*$)""".r
     val pattern(name, _) = obj.toString
@@ -856,10 +864,12 @@ class AppTabManager(val appTabsPanel:          Tabs,
 
   def __printSwingObject(obj: java.awt.Component, description: String): Unit = {
     val some = Option(obj) // Because Option(null) = None 11/2020 AAB
+    var objID = ""
     some match {
-      case None           => println(description + " <null>")
-      case Some(theValue) =>  __printNonNullSwingObject(obj, description)
+      case None           =>
+      case Some(theValue) => objID = System.identityHashCode(obj) + ", "
     }
+    println(description + " " + objID + __getSimpleName(obj))
   }
 
   def __printOptionSwingObject(obj: Option[java.awt.Component], description: String): Unit = {
