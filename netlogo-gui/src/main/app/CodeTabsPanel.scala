@@ -9,7 +9,7 @@ import javax.swing.event.{ ChangeEvent, ChangeListener }
 import scala.collection.mutable
 
 import org.nlogo.app.codetab.{ ExternalFileManager, MainCodeTab, TemporaryCodeTab }
-import org.nlogo.app.common.{ Events => AppEvents, MenuTab }
+import org.nlogo.app.common.{ Events => AppEvents }
 import org.nlogo.core.I18N
 import org.nlogo.app.interfacetab.InterfaceTab
 import org.nlogo.window.GUIWorkspace
@@ -142,17 +142,10 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
       currentTab = getSelectedComponent
       // currentTab could be null in the case where the CodeTabPanel has only the MainCodeTab. AAB 10/2020
       if (currentTab == null) {
+        println("    current tab was null")
         currentTab = mainCodeTab
       }
-      setCurrentTab(currentTab)
-      previousTab match {
-        case mt: MenuTab => mt.activeMenuActions foreach tabManager.menuBar.revokeAction
-        case _ =>
-      }
-      currentTab match {
-        case mt: MenuTab => mt.activeMenuActions foreach tabManager.menuBar.offerAction
-        case _ =>
-      }
+
       (previousTab.isInstanceOf[TemporaryCodeTab], currentTab.isInstanceOf[TemporaryCodeTab]) match {
         case (true, false) => tabManager.appTabsPanel.saveModelActions foreach tabManager.menuBar.offerAction
         case (false, true) => tabManager.appTabsPanel.saveModelActions foreach tabManager.menuBar.revokeAction
