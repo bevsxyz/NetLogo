@@ -176,6 +176,7 @@ class Tabs(workspace:           GUIWorkspace,
       }
       if (debugOn) println("    Focus requested: " + currentTab.getClass.getSimpleName)
       currentTab.requestFocusInWindow()
+      __printFocusOwner
       new AppEvents.SwitchedTabsEvent(previousTab, currentTab).raise(this)
       if (debugOn) println("    Hide count: " + tabManager.__countMenuItembyNameAndMenuName("Tools", "Hide Command Center"))
       if (debugOn) println("    Undo count: " + tabManager.__countMenuItembyNameAndMenuName("Edit", "Undo"))
@@ -184,6 +185,7 @@ class Tabs(workspace:           GUIWorkspace,
       //       println("### Tabs: Selected AppTab Index = -1, currentTab: " + tabManager.getCurrentTab.getClass.getSimpleName)
       println("### Tabs: Selected AppTab Index = -1, currentTab: " + currentTab.getClass.getSimpleName)
       //currentTab.requestFocusInWindow()
+      __printFocusOwner
     }
   }
 
@@ -194,8 +196,13 @@ class Tabs(workspace:           GUIWorkspace,
       if (me.getClickCount() == 1 && me.isControlDown) {
         val currentTab = me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent
         if (currentTab.isInstanceOf[MainCodeTab]) {
+          println(">>> Tabs - " + me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent.getClass.getSimpleName + " control clicked")
           tabManager.switchToSeparateCodeWindow
+        } else {
+          println(" Tabs - " + me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent.getClass.getSimpleName + " control clicked")
         }
+      } else if (me.getClickCount() == 1) {
+        println("### Tabs - " + me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent.getClass.getSimpleName + " clicked")
       }
     }
   })
@@ -290,7 +297,9 @@ class Tabs(workspace:           GUIWorkspace,
         // I don't really know why this is necessary when you delete a slider (by using the menu
         // item *not* the button) which causes an error in the Code tab the focus gets lost,
         // so request the focus by a known component 7/18/07
-        requestFocus()
+        println("### Tabs, CompiledEvent, clearErrors, stableCodeTab, request FocusInWindow, why?")
+        requestFocusInWindow()
+        __printFocusOwner
       }
       case file: ExternalFileInterface => {
         val filename = file.getFileName
@@ -304,7 +313,10 @@ class Tabs(workspace:           GUIWorkspace,
           tabManager.setPanelsSelectedComponent(tab.get)
         }
         recolorTab(tab.get, e.error != null)
-        requestFocus()
+        println("    case ExternalFileInterface")
+        __printFocusOwner
+        requestFocusInWindow()
+        __printFocusOwner
       }
       case null => { // i'm assuming this is only true when we've deleted that last widget. not a great sol'n - AZS 5/16/05
         recolorInterfaceTab()
@@ -359,7 +371,9 @@ class Tabs(workspace:           GUIWorkspace,
     // if I just call requestFocus the tab never gets the focus request because it's not yet
     // visible.  There might be a more swing appropriate way to do this but I can't figure it out
     // (if you know it feel free to fix) ev 7/24/07
-    EventQueue.invokeLater( () => requestFocus() )
+    println("### Tabs, addNewExternalFileTab, invoke, request FocusInWindow, better way?")
+    EventQueue.invokeLater( () => requestFocusInWindow() )
+    __printFocusOwner
   }
 
   def closeExternalFile(filename: Filename): Unit = {
@@ -411,7 +425,7 @@ class Tabs(workspace:           GUIWorkspace,
 
   def handle(e: AfterLoadEvent) = {
     mainCodeTab.getPoppingCheckBox.setSelected(tabManager.isCodeTabSeparate)
-    requestFocus()
+    requestFocusInWindow()
   }
 
   object SaveAllAction extends ExceptionCatchingAction(I18N.gui.get("menu.file.saveAll"), this)
