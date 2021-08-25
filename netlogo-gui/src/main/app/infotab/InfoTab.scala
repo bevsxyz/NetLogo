@@ -117,6 +117,8 @@ class InfoTab(attachModelDir: String => String)
 
   override def requestFocus() { view.requestFocus() }
 
+  override def requestFocusInWindow(): Boolean =  { view.requestFocusInWindow() }
+
   def info = textArea.getText
   def info(str: String) {
     if(str != info) {

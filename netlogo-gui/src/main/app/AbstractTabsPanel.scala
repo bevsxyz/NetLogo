@@ -67,4 +67,6 @@ abstract class AbstractTabsPanel(val workspace:           GUIWorkspace,
   }
 
   override def requestFocus() = { currentTab.requestFocus() }
+  override def requestFocusInWindow(): Boolean = { currentTab.requestFocusInWindow() }
+
 }

@@ -105,6 +105,10 @@ class CommandLine(commandCenter: CommandCenterInterface,
     textField.requestFocus()
   }
 
+  override def requestFocusInWindow(): Boolean = {
+    textField.requestFocusInWindow()
+  }
+
   /// keyboard handling for the text field
 
   def keyReleased(e: KeyEvent): Unit = { }

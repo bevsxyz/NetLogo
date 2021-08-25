@@ -114,6 +114,11 @@ class InterfaceTab(workspace: GUIWorkspace,
     TrackingFocusListener.lastFocused.getOrElse(commandCenter).requestFocusInWindow()
   }
 
+  override def requestFocusInWindow(): Boolean = {
+    commandCenter.requestFocusInWindow()
+    TrackingFocusListener.lastFocused.getOrElse(commandCenter).requestFocusInWindow()
+  }
+
   final def handle(e: SwitchedTabsEvent) {
     commandCenter.requestFocusInWindow()
     TrackingFocusListener.lastFocused.getOrElse(commandCenter).requestFocusInWindow()
