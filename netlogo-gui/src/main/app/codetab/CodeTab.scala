@@ -163,7 +163,7 @@ with MenuTab {
   protected def compile(): Unit = new WindowEvents.CompileAllEvent().raise(this)
 
   override def requestFocus(): Unit = text.requestFocus()
-
+  override def requestFocusInWindow(): Boolean = text.requestFocusInWindow()
   def innerSource = text.getText
   def getText = text.getText  // for ProceduresMenuTarget
   def headerSource = ""

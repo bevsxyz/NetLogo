@@ -64,7 +64,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
 
   // might want access to these owner methods to be only in the app package
   // Need to carefully decide which methods are private. AAB 10/2020
-  def getCodeTabsOwner = {
+  def getCodeTabsOwner() : AbstractTabsPanel = {
     codeTabsPanelOption match {
       case None           => appTabsPanel
       case Some(theValue) => theValue
