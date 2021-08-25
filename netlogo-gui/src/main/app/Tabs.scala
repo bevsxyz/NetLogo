@@ -119,28 +119,11 @@ class Tabs(workspace:           GUIWorkspace,
       println("   " + "opposite window: " +   getSimpleNameOrNull(e.getOppositeWindow))
       println("   " + getSimpleNameOrNull(getAppJFrame) + " is Active " + getAppJFrame.isActive())
       println("   " + getSimpleNameOrNull(getAppJFrame) + " is Focused " + getAppJFrame.isFocused())
-      var focusOwner = getAppJFrame.getFocusOwner
-      if (focusOwner != null) {
-        println("   Focus owner is " + getSimpleNameOrNull(focusOwner))
-      } else {
-        println("No focus owner.")
-      }
-
-      focusOwner = getAppJFrame.getMostRecentFocusOwner
-      if (focusOwner != null) {
-        println("   Most Recent FocusOwner is " + getSimpleNameOrNull(focusOwner))
-      } else {
-        println("No Most Recent FocusOwner.")
-      }
+      __printFocusOwner
 
       val result = currentTab.requestFocusInWindow()
       println("   " + "requestFocusInWindow succeeded: " + result)
-      focusOwner = getAppJFrame.getFocusOwner
-      if (focusOwner != null) {
-        println("   Focus owner is " + getSimpleNameOrNull(focusOwner))
-      } else {
-        println("No focus owner.")
-      }
+      __printFocusOwner
       println("*** Tabs")
       if (tabManager.getMainCodeTab.dirty) {
         // The SwitchedTabsEvent can lead to compilation. AAB 10/2020
@@ -149,16 +132,34 @@ class Tabs(workspace:           GUIWorkspace,
     }
     })
 
+  def __printFocusOwner(): Unit = {
+    val focusOwner = getAppJFrame.getFocusOwner
+    if (focusOwner != null) {
+      println("   Focus owner is " + getSimpleNameOrNull(focusOwner))
+    } else {
+      println("No focus owner.")
+    }
+  }
+
   def stateChanged(e: ChangeEvent) = {
+    val debugOn = this.getTabCount > 1 // before init happens
+    if (debugOn) println("  ")
     // Because there can be a separate code tab window, it is
     // sometime necessary to deselect a tab by setting the selected
     // tab index of the parent JTabbedPane to -1
     // In that case do nothing. The correct action will happen when
     // the selected index is reset. AAB 10/2020
     if (tabManager.getSelectedAppTabIndex != -1) {
-      val previousTab = getCurrentTab
+      val previousTab = currentTab
       currentTab = getSelectedComponent
-      setCurrentTab(currentTab)
+      if (debugOn) println("*** Tabs - stateChanged")
+      if (debugOn) println("    Previous Tab: " + previousTab.getClass.getSimpleName)
+      if (debugOn) println("    Current Tab: " + currentTab.getClass.getSimpleName)
+      if (debugOn) {
+        val owner = tabManager.getCodeTabsOwner
+        println("    CodeTabOwner " + owner.getClass.getSimpleName + " Selected Index: " + owner.getSelectedIndex)
+      }
+
       previousTab match {
         case mt: MenuTab => mt.activeMenuActions foreach menu.revokeAction
         case _ =>
@@ -173,8 +174,16 @@ class Tabs(workspace:           GUIWorkspace,
         case (false, true) => saveModelActions foreach menu.revokeAction
         case _             =>
       }
-      currentTab.requestFocus()
+      if (debugOn) println("    Focus requested: " + currentTab.getClass.getSimpleName)
+      currentTab.requestFocusInWindow()
       new AppEvents.SwitchedTabsEvent(previousTab, currentTab).raise(this)
+      if (debugOn) println("    Hide count: " + tabManager.__countMenuItembyNameAndMenuName("Tools", "Hide Command Center"))
+      if (debugOn) println("    Undo count: " + tabManager.__countMenuItembyNameAndMenuName("Edit", "Undo"))
+      if (debugOn) println("*** Tabs")
+    } else {
+      //       println("### Tabs: Selected AppTab Index = -1, currentTab: " + tabManager.getCurrentTab.getClass.getSimpleName)
+      println("### Tabs: Selected AppTab Index = -1, currentTab: " + currentTab.getClass.getSimpleName)
+      //currentTab.requestFocusInWindow()
     }
   }
 
