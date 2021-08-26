@@ -200,23 +200,23 @@ class AppTabManager(val appTabsPanel:          Tabs,
   def setPanelsSelectedIndex(index: Int): Unit =  {
     val (tabOwner, tabIndex) = ownerAndIndexFromCombinedIndex(index)
     if (tabOwner.isInstanceOf[CodeTabsPanel]) {
-      println("    Helper, request FocusInWindow: " + tabOwner.getClass.getSimpleName)
+      println("    setPanelsSelectedIndex, request FocusInWindow: " + __getSimpleName(tabOwner))
       tabOwner.requestFocusInWindow
-      println("    Helper, setSelectedIndex: " + tabOwner.getClass.getSimpleName + " index " + tabIndex)
+      println("    setPanelsSelectedIndex, setSelectedIndex: " + __getSimpleName(tabOwner) + " index " + tabIndex)
       tabOwner.setSelectedIndex(tabIndex)
     } else {
       val selectedIndex = getSelectedAppTabIndex
       if (selectedIndex == tabIndex) {
         // Saves selected tab as current tab
-        println("    Helper, setCurrentTab: " + tabOwner.getComponentAt(tabIndex).getClass.getSimpleName)
+        println("    setPanelsSelectedIndex, setCurrentTab: " + __getSimpleName(tabOwner.getComponentAt(tabIndex)))
         // aab setCurrentTab(tabOwner.getComponentAt(tabIndex))
         tabOwner.setCurrentTab(tabOwner.getComponentAt(tabIndex))
         // Deselects the tab
-        println("    Helper, setSelectedAppTab(-1) ")
+        println("    setPanelsSelectedIndex, setSelectedAppTab(-1) ")
         setSelectedAppTab(-1)
       }
       // Reselects the tab in the Application window
-      println("    Helper, setSelectedIndex: " + appTabsPanel.getClass.getSimpleName + " index " + tabIndex)
+      println("    setPanelsSelectedIndex, setSelectedIndex: " + __getSimpleName(appTabsPanel) + " index " + tabIndex)
       setSelectedAppTab(tabIndex)
     }
   }
@@ -263,15 +263,14 @@ class AppTabManager(val appTabsPanel:          Tabs,
         }
         codeTabsPanel.getCodeTabContainer.dispose
         appTabsPanel.mainCodeTab.getPoppingCheckBox.setSelected(false)
-        println("appTabsPanel mainCodeTab request FocusInWindow")
+        println("    appTabsPanel mainCodeTab request FocusInWindow")
         appTabsPanel.mainCodeTab.requestFocus
         appTabsPanel.getAppFrame.removeLinkComponent(codeTabsPanel.getCodeTabContainer)
         Event.rehash()
         println("   ")
-        println("    Hide count: " + __countMenuItembyNameAndMenuName("Tools", "Hide Command Center"))
-        println("    Undo count: " + __countMenuItembyNameAndMenuName("Edit", "Undo"))
-        println("    appTabsPanel currentTab: " + appTabsPanel.getCurrentTab.getClass.getSimpleName)
-        println("    codeTabsPanel currentTab: " + codeTabsPanel.getCurrentTab.getClass.getSimpleName)
+        __PrintHideUndoMenuCounts
+        println("    appTabsPanel currentTab: " + __getSimpleName(appTabsPanel.getCurrentTab))
+        println("    codeTabsPanel currentTab: " + __getSimpleName(codeTabsPanel.getCurrentTab))
         println("### End tab unification")
       } // end case where work was done. AAB 10/2020
     }
@@ -282,6 +281,7 @@ class AppTabManager(val appTabsPanel:          Tabs,
     if (!isCodeTabSeparate) {
       println("   ")
       println("### Begin tab separation")
+      println("   ")
       val codeTabsPanel = new CodeTabsPanel(appTabsPanel.workspace,
         appTabsPanel.interfaceTab,
         appTabsPanel.externalFileManager,
@@ -316,13 +316,12 @@ class AppTabManager(val appTabsPanel:          Tabs,
       codeTabsPanel.setSelectedComponent(appTabsPanel.mainCodeTab)
       appTabsPanel.setSelectedComponent(appTabsPanel.interfaceTab)
       appTabsPanel.getAppFrame.addLinkComponent(codeTabsPanel.getCodeTabContainer)
+      println("   createCodeTabAccelerators")
       createCodeTabAccelerators()
       Event.rehash()
-      println("   ")
-      println("    Hide count: " + __countMenuItembyNameAndMenuName("Tools", "Hide Command Center"))
-      println("    Undo count: " + __countMenuItembyNameAndMenuName("Edit", "Undo"))
-      println("    appTabsPanel currentTab: " + appTabsPanel.getCurrentTab.getClass.getSimpleName)
-      println("    codeTabsPanel currentTab: " + codeTabsPanel.getCurrentTab.getClass.getSimpleName)
+      __PrintHideUndoMenuCounts
+      println("    appTabsPanel currentTab: " + __getSimpleName(appTabsPanel.getCurrentTab))
+      println("    codeTabsPanel currentTab: " + __getSimpleName(codeTabsPanel.getCurrentTab))
       println("codeTabsPanel mainCodeTab request FocusInWindow")
       codeTabsPanel.mainCodeTab.requestFocusInWindow
       println("### End tab separation")
@@ -897,6 +896,50 @@ class AppTabManager(val appTabsPanel:          Tabs,
     }
   }
 
+  def __PrintWindowEventInfo(e: java.awt.event.WindowEvent): Unit = {
+    println("    " + "ID: " + e.getID)
+    println("    " + "source: " + __getSimpleName(e.getSource))
+    println("    " + "window: " + __getSimpleName(e.getWindow))
+    println("    " + "opposite window: " + __getSimpleName(e.getOppositeWindow))
+  }
 
+  def __PrintStateInfo(previousTab: Component, currentTab: Component): Unit = {
+    println("    Previous Tab: " + __getSimpleName(previousTab))
+
+    println("    Current Tab: " + __getSimpleName(currentTab))
+    val owner = getCodeTabsOwner
+    println("    CodeTabOwner " + __getSimpleName(owner) + " Selected Index: " + owner.getSelectedIndex)
+  }
+
+  def __printFocusOwner(topContainer: javax.swing.JFrame): Unit = {
+    __printFocusOwner(topContainer, false)
+  }
+
+  def __printFocusOwner(topContainer: javax.swing.JFrame, fullInfo: Boolean): Unit = {
+    if (fullInfo) {
+      println("    " + __getSimpleName(topContainer) + " is Active " + topContainer.isActive())
+      println("    " + __getSimpleName(topContainer) + " is Focused " + topContainer.isFocused())
+    }
+    if (topContainer.isFocused()) {
+      val focusOwner = topContainer.getFocusOwner
+      if (focusOwner != null) {
+        println("    Focus owner is " + __getSimpleName(focusOwner))
+      } else {
+        println("    No focus owner.")
+      }
+    } else {
+      val prevFocusOwner = topContainer.getMostRecentFocusOwner
+      if (prevFocusOwner != null) {
+        println("    Focus owner is " + __getSimpleName(prevFocusOwner))
+      } else {
+        println("    No previous focus owner.")
+      }
+    }
+  }
+
+  def __PrintHideUndoMenuCounts(): Unit = {
+    println("    Hide count: " + __countMenuItembyNameAndMenuName("Tools", "Hide Command Center"))
+    println("    Undo count: " + __countMenuItembyNameAndMenuName("Edit", "Undo"))
+  }
   // *** End debugging tools AAB 10/2020.
 }

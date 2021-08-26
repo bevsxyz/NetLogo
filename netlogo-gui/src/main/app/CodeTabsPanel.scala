@@ -64,6 +64,7 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
   }
 
   def handle(e: AfterLoadEvent) = {
+    println("*** codeTabsPanel AfterLoadEvent createCodeTabAccelerators")
     tabManager.createCodeTabAccelerators()
   }
 
@@ -75,18 +76,18 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
         // A single mouse control-click on the MainCodeTab in a separate window
         // closes the code window, and takes care of the bookkeeping. AAB 10/2020
         if (me.isControlDown && currentTab.isInstanceOf[MainCodeTab]) {
-          println("   ")
-          println("   ")
+          println("    ")
+          println("    ")
           println(">>> CodeTabsPanel - Code Tab control clicked")
           tabManager.switchToNoSeparateCodeWindow
         } else {
-          println("   ")
+          println("    ")
           println("*** CodeTabsPanel - mouse click ")
           setCurrentTab(currentTab)
-          __printFocusOwner
-          println("    Focus requested: " + currentTab.getClass.getSimpleName)
+          tabManager.__printFocusOwner(getCodeTabContainer, true)
+          println("    Focus requested: " + tabManager.__getSimpleName(currentTab))
           currentTab.requestFocusInWindow()
-          __printFocusOwner
+          tabManager.__printFocusOwner(getCodeTabContainer, true)
           println("***")
         }
       }
@@ -104,31 +105,21 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
   // be selected. AAB 10/2020
   codeTabContainer.addWindowFocusListener(new WindowAdapter() {
     override def  windowGainedFocus(e: WindowEvent) {
+      println("    ")
+      println("*** CodeTabsPanel - windowGainedFocus")
+      tabManager.__PrintWindowEventInfo(e)
       val currentTab = codeTabsPanel.getSelectedComponent
-      setCurrentTab(currentTab)
-      println("   " + "ID: " + e.getID)
-      println("   " + "source: " + e.getSource.getClass.getSimpleName)
-      println("   " + "window: " + e.getWindow.getClass.getSimpleName)
-      println("   " + "opposite window: " +   e.getOppositeWindow.getClass.getSimpleName)
-      println("   " + getCodeTabContainer.getClass.getSimpleName + " is Active " + getCodeTabContainer.isActive())
-      println("   " + getCodeTabContainer.getClass.getSimpleName + " is Focused " + getCodeTabContainer.isFocused())
-      __printFocusOwner
+      //setCurrentTab(currentTab)
+      tabManager.__printFocusOwner(getCodeTabContainer, true)
       val result = currentTab.requestFocusInWindow()
-      println("   " + "requestFocusInWindow succeeded: " + result)
-      __printFocusOwner
+      println("    " + "requestFocusInWindow succeeded: " + result)
+      tabManager.__printFocusOwner(getCodeTabContainer, true)
     }
   })
 
-  def __printFocusOwner(): Unit = {
-    val focusOwner = getCodeTabContainer.getFocusOwner
-    if (focusOwner != null) {
-      println("   Focus owner is " + focusOwner.getClass.getSimpleName)
-    } else {
-      println("No focus owner.")
-    }
-  }
-
   def stateChanged(e: ChangeEvent) = {
+    println("    ")
+    println("*** CodeTabsPanel - stateChanged")
     // for explanation of index -1, see comment in Tabs.stateChanged. AAB 10/2020
     if (tabManager.getSelectedAppTabIndex != -1) {
       val previousTab = getCurrentTab
@@ -138,33 +129,28 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
         println("    current tab was null")
         currentTab = mainCodeTab
       }
-      println("    Previous Tab: " + previousTab.getClass.getSimpleName)
-      //tabManager.setCurrentTab(currentTab)
-      println("    Current Tab: " + currentTab.getClass.getSimpleName)
-      val owner = tabManager.getCodeTabsOwner
-      println("    CodeTabOwner " + owner.getClass.getSimpleName + " Selected Index: " + owner.getSelectedIndex)
-
+      tabManager.__PrintStateInfo(previousTab, currentTab)
+    //tabManager.setCurrentTab(currentTab)
       (previousTab.isInstanceOf[TemporaryCodeTab], currentTab.isInstanceOf[TemporaryCodeTab]) match {
         case (true, false) => tabManager.appTabsPanel.saveModelActions foreach tabManager.menuBar.offerAction
         case (false, true) => tabManager.appTabsPanel.saveModelActions foreach tabManager.menuBar.revokeAction
         case _             =>
       }
-      println("    Current Tab: " + currentTab.getClass.getSimpleName)
-      println("    Focus requested: " + currentTab.getClass.getSimpleName)
-
+      tabManager.__printFocusOwner(getCodeTabContainer, true)
+      println("    Focus requested: " + tabManager.__getSimpleName(currentTab))
       currentTab.requestFocusInWindow()
-      __printFocusOwner
+      tabManager.__printFocusOwner(getCodeTabContainer, true)
+      println("   createCodeTabAccelerators")
       tabManager.createCodeTabAccelerators
       // The SwitchedTabsEvent will cause compilation when the user leaves an edited CodeTab. AAB 10/2020
       new AppEvents.SwitchedTabsEvent(previousTab, currentTab).raise(this)
-      println("    Hide count: " + tabManager.__countMenuItembyNameAndMenuName("Tools", "Hide Command Center"))
-      println("    Undo count: " + tabManager.__countMenuItembyNameAndMenuName("Edit", "Undo"))
-      println("*** CodeTabsPanel")
+      tabManager.__PrintHideUndoMenuCounts
     } else {
-       println("### CodeTabsPanel: Selected CodeTab Index = -1, currentTab: " + currentTab.getClass.getSimpleName)
+       println("    CodeTabsPanel: Selected CodeTab Index = -1, currentTab: " + tabManager.__getSimpleName(currentTab))
       //currentTab.requestFocusInWindow()
-      __printFocusOwner
+      tabManager.__printFocusOwner(getCodeTabContainer, true)
     }
+      println("*** CodeTabsPanel")
   }
 
   java.awt.EventQueue.invokeLater(new Runnable() {

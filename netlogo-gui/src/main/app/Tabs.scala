@@ -99,31 +99,17 @@ class Tabs(workspace:           GUIWorkspace,
     tabManager.setAppCodeTabBindings
   }
 
-  def getSimpleNameOrNull(c: Any) : String = {
-    if (c == null){
-      return "<null>"
-    } else {
-      return c.getClass.getSimpleName
-    }
-  }
-
   jframe.addWindowFocusListener(new WindowAdapter() {
     override def windowGainedFocus(e: WindowEvent) {
       val currentTab = getTabs.getSelectedComponent
-      println("   ")
+      println("    ")
       println("*** Tabs - windowGainedFocus")
-      setCurrentTab(currentTab)
-      println("   " + "ID: " + e.getID)
-      println("   " + "source: " + getSimpleNameOrNull(e.getSource))
-      println("   " + "window: " + getSimpleNameOrNull(e.getWindow))
-      println("   " + "opposite window: " +   getSimpleNameOrNull(e.getOppositeWindow))
-      println("   " + getSimpleNameOrNull(getAppJFrame) + " is Active " + getAppJFrame.isActive())
-      println("   " + getSimpleNameOrNull(getAppJFrame) + " is Focused " + getAppJFrame.isFocused())
-      __printFocusOwner
-
+      tabManager.__PrintWindowEventInfo(e)
+      //setCurrentTab(currentTab)
+      tabManager.__printFocusOwner(getAppJFrame, true)
       val result = currentTab.requestFocusInWindow()
-      println("   " + "requestFocusInWindow succeeded: " + result)
-      __printFocusOwner
+      println("    " + "requestFocusInWindow succeeded: " + result)
+      tabManager.__printFocusOwner(getAppJFrame)
       println("*** Tabs")
       if (tabManager.getMainCodeTab.dirty) {
         // The SwitchedTabsEvent can lead to compilation. AAB 10/2020
@@ -132,18 +118,10 @@ class Tabs(workspace:           GUIWorkspace,
     }
     })
 
-  def __printFocusOwner(): Unit = {
-    val focusOwner = getAppJFrame.getFocusOwner
-    if (focusOwner != null) {
-      println("   Focus owner is " + getSimpleNameOrNull(focusOwner))
-    } else {
-      println("No focus owner.")
-    }
-  }
-
   def stateChanged(e: ChangeEvent) = {
     val debugOn = this.getTabCount > 1 // before init happens
     if (debugOn) println("  ")
+    if (debugOn) println("*** Tabs - stateChanged")
     // Because there can be a separate code tab window, it is
     // sometime necessary to deselect a tab by setting the selected
     // tab index of the parent JTabbedPane to -1
@@ -152,12 +130,8 @@ class Tabs(workspace:           GUIWorkspace,
     if (tabManager.getSelectedAppTabIndex != -1) {
       val previousTab = currentTab
       currentTab = getSelectedComponent
-      if (debugOn) println("*** Tabs - stateChanged")
-      if (debugOn) println("    Previous Tab: " + previousTab.getClass.getSimpleName)
-      if (debugOn) println("    Current Tab: " + currentTab.getClass.getSimpleName)
       if (debugOn) {
-        val owner = tabManager.getCodeTabsOwner
-        println("    CodeTabOwner " + owner.getClass.getSimpleName + " Selected Index: " + owner.getSelectedIndex)
+        tabManager.__PrintStateInfo(previousTab, currentTab)
       }
 
       previousTab match {
@@ -174,19 +148,19 @@ class Tabs(workspace:           GUIWorkspace,
         case (false, true) => saveModelActions foreach menu.revokeAction
         case _             =>
       }
-      if (debugOn) println("    Focus requested: " + currentTab.getClass.getSimpleName)
+      if (debugOn) tabManager.__printFocusOwner(getAppJFrame, true)
+      if (debugOn) println("    Focus requested: " + tabManager.__getSimpleName(currentTab))
       currentTab.requestFocusInWindow()
-      __printFocusOwner
+      if (debugOn) tabManager.__printFocusOwner(getAppJFrame)
       new AppEvents.SwitchedTabsEvent(previousTab, currentTab).raise(this)
-      if (debugOn) println("    Hide count: " + tabManager.__countMenuItembyNameAndMenuName("Tools", "Hide Command Center"))
-      if (debugOn) println("    Undo count: " + tabManager.__countMenuItembyNameAndMenuName("Edit", "Undo"))
-      if (debugOn) println("*** Tabs")
+      if (debugOn) tabManager.__PrintHideUndoMenuCounts
     } else {
-      //       println("### Tabs: Selected AppTab Index = -1, currentTab: " + tabManager.getCurrentTab.getClass.getSimpleName)
-      println("### Tabs: Selected AppTab Index = -1, currentTab: " + currentTab.getClass.getSimpleName)
+      //       println("### Tabs: Selected AppTab Index = -1, currentTab: " + tabManager.__getSimpleName(tabManager.getCurrentTab))
+      println("    Tabs: Selected AppTab Index = -1, currentTab: " + tabManager.__getSimpleName(currentTab))
       //currentTab.requestFocusInWindow()
-      __printFocusOwner
+      tabManager.__printFocusOwner(getAppJFrame, true)
     }
+    if (debugOn) println("*** Tabs")
   }
 
   this.addMouseListener(new MouseAdapter() {
@@ -194,15 +168,16 @@ class Tabs(workspace:           GUIWorkspace,
       // A single mouse control-click on the MainCodeTab in a separate window
       // opens the code window, and takes care of the bookkeeping. AAB 10/2020
       if (me.getClickCount() == 1 && me.isControlDown) {
-        val currentTab = me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent
-        if (currentTab.isInstanceOf[MainCodeTab]) {
-          println(">>> Tabs - " + me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent.getClass.getSimpleName + " control clicked")
+        val clickedTab = me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent
+        if (clickedTab.isInstanceOf[MainCodeTab]) {
+          println(">>> Tabs - " + tabManager.__getSimpleName(clickedTab) + " control clicked")
+          println("    Current Tab: " + tabManager.__getSimpleName(currentTab))
           tabManager.switchToSeparateCodeWindow
         } else {
-          println(" Tabs - " + me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent.getClass.getSimpleName + " control clicked")
+          println(" Tabs - " + tabManager.__getSimpleName(clickedTab) + " control clicked")
         }
       } else if (me.getClickCount() == 1) {
-        println("### Tabs - " + me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent.getClass.getSimpleName + " clicked")
+        println("### Tabs - " + tabManager.__getSimpleName(me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent) + " clicked")
       }
     }
   })
@@ -299,7 +274,7 @@ class Tabs(workspace:           GUIWorkspace,
         // so request the focus by a known component 7/18/07
         println("### Tabs, CompiledEvent, clearErrors, stableCodeTab, request FocusInWindow, why?")
         requestFocusInWindow()
-        __printFocusOwner
+        tabManager.__printFocusOwner(getAppJFrame, true)
       }
       case file: ExternalFileInterface => {
         val filename = file.getFileName
@@ -314,9 +289,9 @@ class Tabs(workspace:           GUIWorkspace,
         }
         recolorTab(tab.get, e.error != null)
         println("    case ExternalFileInterface")
-        __printFocusOwner
+        tabManager.__printFocusOwner(getAppJFrame, true)
         requestFocusInWindow()
-        __printFocusOwner
+        tabManager.__printFocusOwner(getAppJFrame)
       }
       case null => { // i'm assuming this is only true when we've deleted that last widget. not a great sol'n - AZS 5/16/05
         recolorInterfaceTab()
@@ -373,7 +348,7 @@ class Tabs(workspace:           GUIWorkspace,
     // (if you know it feel free to fix) ev 7/24/07
     println("### Tabs, addNewExternalFileTab, invoke, request FocusInWindow, better way?")
     EventQueue.invokeLater( () => requestFocusInWindow() )
-    __printFocusOwner
+    tabManager.__printFocusOwner(getAppJFrame, true)
   }
 
   def closeExternalFile(filename: Filename): Unit = {
@@ -383,6 +358,7 @@ class Tabs(workspace:           GUIWorkspace,
       if (externalFileTabs.isEmpty) {
         menu.revokeAction(SaveAllAction)
         // Could change to remove and copy only FileMenu accelerators - AAB Nov 2020
+        println("*** Tabs closeExternalFile removeCodeTabContainerAccelerators")
         tabManager.removeCodeTabContainerAccelerators
         tabManager.copyMenuBarAccelerators
       }
@@ -405,6 +381,7 @@ class Tabs(workspace:           GUIWorkspace,
     tabActions = TabsMenu.tabActions(tabManager)
     tabActions.foreach(action => menu.offerAction(action))
     // Could change to remove and copy only TabsMenu accelerators - AAB Nov 2020
+    println("*** Tabs updateTabsMenu removeCodeTabContainerAccelerators")
     tabManager.removeCodeTabContainerAccelerators
     tabManager.copyMenuBarAccelerators
   }
@@ -413,6 +390,7 @@ class Tabs(workspace:           GUIWorkspace,
     val newAction = TabsMenu.tabAction(tabManager, i)
     tabActions = tabActions :+ newAction
     menu.offerAction(newAction)
+    println("**** Tabs addMenuItem copyMenuAcceleratorsByName")
     tabManager.copyMenuAcceleratorsByName(I18N.gui.get("menu.tabs"))
   }
 
