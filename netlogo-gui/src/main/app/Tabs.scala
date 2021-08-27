@@ -104,17 +104,17 @@ class Tabs(workspace:           GUIWorkspace,
       val currentTab = getTabs.getSelectedComponent
       println("    ")
       println("*** Tabs - windowGainedFocus")
-      tabManager.__PrintWindowEventInfo(e)
-      //setCurrentTab(currentTab)
-      tabManager.__printFocusOwner(getAppJFrame, true)
-      val result = currentTab.requestFocusInWindow()
-      println("    " + "requestFocusInWindow succeeded: " + result)
-      tabManager.__printFocusOwner(getAppJFrame)
-      println("*** Tabs")
+      // tabManager.__PrintWindowEventInfo(e)
+      // //setCurrentTab(currentTab)
+      // tabManager.__printFocusOwner(getAppJFrame, true)
+      // val result = currentTab.requestFocusInWindow()
+      // println("    " + "requestFocusInWindow succeeded: " + result)
+      // tabManager.__printFocusOwner(getAppJFrame)
       if (tabManager.getMainCodeTab.dirty) {
         // The SwitchedTabsEvent can lead to compilation. AAB 10/2020
          new AppEvents.SwitchedTabsEvent(tabManager.getMainCodeTab, currentTab).raise(getTabs)
       }
+      println("*** Tabs")
     }
     })
 

@@ -103,20 +103,20 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
 
   // If focus returns to the code tab window, make its currentTab
   // be selected. AAB 10/2020
-  codeTabContainer.addWindowFocusListener(new WindowAdapter() {
-    override def  windowGainedFocus(e: WindowEvent) {
-      println("    ")
-      println("*** CodeTabsPanel - windowGainedFocus")
-      tabManager.__PrintWindowEventInfo(e)
-      val currentTab = codeTabsPanel.getSelectedComponent
-      //setCurrentTab(currentTab)
-      tabManager.__printFocusOwner(getCodeTabContainer, true)
-      val result = currentTab.requestFocusInWindow()
-      println("    " + "requestFocusInWindow succeeded: " + result)
-      tabManager.__printFocusOwner(getCodeTabContainer, true)
-      println("*** CodeTabsPanel")
-    }
-  })
+  // codeTabContainer.addWindowFocusListener(new WindowAdapter() {
+  //   override def  windowGainedFocus(e: WindowEvent) {
+  //     println("    ")
+  //     println("*** CodeTabsPanel - windowGainedFocus")
+  //     tabManager.__PrintWindowEventInfo(e)
+  //     val currentTab = codeTabsPanel.getSelectedComponent
+  //     //setCurrentTab(currentTab)
+  //     tabManager.__printFocusOwner(getCodeTabContainer, true)
+  //     val result = currentTab.requestFocusInWindow()
+  //     println("    " + "requestFocusInWindow succeeded: " + result)
+  //     tabManager.__printFocusOwner(getCodeTabContainer, true)
+  //     println("*** CodeTabsPanel")
+  //   }
+  //})
 
   def stateChanged(e: ChangeEvent) = {
     println("    ")
