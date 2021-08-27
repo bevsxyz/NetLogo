@@ -199,26 +199,31 @@ class AppTabManager(val appTabsPanel:          Tabs,
 
   def setPanelsSelectedIndex(index: Int): Unit =  {
     val (tabOwner, tabIndex) = ownerAndIndexFromCombinedIndex(index)
+    println("  ")
+    println("*** >setPanelsSelectedIndex")
+    println("    Input index: " + index)
+    println("    Tab owner " + __getSimpleName(tabOwner) + ", owner index " + tabIndex)
+    println("    Current selected index: " + tabOwner.getSelectedIndex)
     if (tabOwner.isInstanceOf[CodeTabsPanel]) {
-      println("    setPanelsSelectedIndex, request FocusInWindow: " + __getSimpleName(tabOwner))
+      println("    request FocusInWindow: ")
       tabOwner.requestFocusInWindow
-      println("    setPanelsSelectedIndex, setSelectedIndex: " + __getSimpleName(tabOwner) + " index " + tabIndex)
+      println("    Set selected index")
       tabOwner.setSelectedIndex(tabIndex)
     } else {
-      val selectedIndex = getSelectedAppTabIndex
+      val selectedIndex = tabOwner.getSelectedIndex
       if (selectedIndex == tabIndex) {
         // Saves selected tab as current tab
-        println("    setPanelsSelectedIndex, setCurrentTab: " + __getSimpleName(tabOwner.getComponentAt(tabIndex)))
-        // aab setCurrentTab(tabOwner.getComponentAt(tabIndex))
+        println("    Equal Indexes, Set Current Tab to: " + __getSimpleName(tabOwner.getComponentAt(tabIndex)))
         tabOwner.setCurrentTab(tabOwner.getComponentAt(tabIndex))
         // Deselects the tab
-        println("    setPanelsSelectedIndex, setSelectedAppTab(-1) ")
-        setSelectedAppTab(-1)
+        println("    Deselect tab: setSelectedIndex(-1) ")
+        tabOwner.setSelectedIndex(-1)
       }
       // Reselects the tab in the Application window
-      println("    setPanelsSelectedIndex, setSelectedIndex: " + __getSimpleName(appTabsPanel) + " index " + tabIndex)
-      setSelectedAppTab(tabIndex)
+      println("    Set selected index")
+      tabOwner.setSelectedIndex(tabIndex)
     }
+    println("*** <setPanelsSelectedIndex")
   }
 
   def getIndexOfCodeTab(tab: CodeTab): Int = {
@@ -737,7 +742,8 @@ class AppTabManager(val appTabsPanel:          Tabs,
     }
   }
 
-  // For a Menu - prints Menu Items and their Accelerators
+  // For a Menu Item - prints Menu Item its Accelerator or
+  // if it is a JMenu prints Menu Items and their Accelerators
   def __printMenuItem(menuItem: JMenuItem, level: Int): Unit = {
     if (menuItem == null) { return }
     if (menuItem.isInstanceOf[JMenu]) {

@@ -381,16 +381,19 @@ class Tabs(workspace:           GUIWorkspace,
     tabActions = TabsMenu.tabActions(tabManager)
     tabActions.foreach(action => menu.offerAction(action))
     // Could change to remove and copy only TabsMenu accelerators - AAB Nov 2020
+    tabManager.__printAppMenuBarAccelerators
     println("*** Tabs updateTabsMenu removeCodeTabContainerAccelerators")
     tabManager.removeCodeTabContainerAccelerators
+    tabManager.__printAppMenuBarAccelerators
     tabManager.copyMenuBarAccelerators
+    tabManager.__printAppMenuBarAccelerators
   }
 
   def addMenuItem(i: Int, name: String) {
     val newAction = TabsMenu.tabAction(tabManager, i)
     tabActions = tabActions :+ newAction
     menu.offerAction(newAction)
-    println("**** Tabs addMenuItem copyMenuAcceleratorsByName")
+    // This may not be necessary AAB 08/21
     tabManager.copyMenuAcceleratorsByName(I18N.gui.get("menu.tabs"))
   }
 

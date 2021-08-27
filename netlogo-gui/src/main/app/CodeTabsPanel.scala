@@ -114,6 +114,7 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
       val result = currentTab.requestFocusInWindow()
       println("    " + "requestFocusInWindow succeeded: " + result)
       tabManager.__printFocusOwner(getCodeTabContainer, true)
+      println("*** CodeTabsPanel")
     }
   })
 
@@ -140,7 +141,8 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
       println("    Focus requested: " + tabManager.__getSimpleName(currentTab))
       currentTab.requestFocusInWindow()
       tabManager.__printFocusOwner(getCodeTabContainer, true)
-      println("   createCodeTabAccelerators")
+      println("    createCodeTabAccelerators")
+      // this shouldn't need to happen for every state change
       tabManager.createCodeTabAccelerators
       // The SwitchedTabsEvent will cause compilation when the user leaves an edited CodeTab. AAB 10/2020
       new AppEvents.SwitchedTabsEvent(previousTab, currentTab).raise(this)
