@@ -268,11 +268,12 @@ class AppTabManager(val appTabsPanel:          Tabs,
         }
         codeTabsPanel.getCodeTabContainer.dispose
         appTabsPanel.mainCodeTab.getPoppingCheckBox.setSelected(false)
+        println("   ")
+        println("### Continue tab unification")
         println("    appTabsPanel mainCodeTab request FocusInWindow")
         appTabsPanel.mainCodeTab.requestFocus
         appTabsPanel.getAppFrame.removeLinkComponent(codeTabsPanel.getCodeTabContainer)
         Event.rehash()
-        println("   ")
         __PrintHideUndoMenuCounts
         println("    appTabsPanel currentTab: " + __getSimpleName(appTabsPanel.getCurrentTab))
         println("    codeTabsPanel currentTab: " + __getSimpleName(codeTabsPanel.getCurrentTab))
@@ -321,13 +322,15 @@ class AppTabManager(val appTabsPanel:          Tabs,
       codeTabsPanel.setSelectedComponent(appTabsPanel.mainCodeTab)
       appTabsPanel.setSelectedComponent(appTabsPanel.interfaceTab)
       appTabsPanel.getAppFrame.addLinkComponent(codeTabsPanel.getCodeTabContainer)
-      println("   createCodeTabAccelerators")
+      println("    ")
+      println("### Continue tab separation")
+      println("    createCodeTabAccelerators")
       createCodeTabAccelerators()
       Event.rehash()
       __PrintHideUndoMenuCounts
       println("    appTabsPanel currentTab: " + __getSimpleName(appTabsPanel.getCurrentTab))
       println("    codeTabsPanel currentTab: " + __getSimpleName(codeTabsPanel.getCurrentTab))
-      println("codeTabsPanel mainCodeTab request FocusInWindow")
+      println("    codeTabsPanel mainCodeTab request FocusInWindow")
       codeTabsPanel.mainCodeTab.requestFocusInWindow
       println("### End tab separation")
     }
