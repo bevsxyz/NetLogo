@@ -15,6 +15,8 @@ object TabsMenu {
       accelerator = KeyBindings.keystroke(('1' + index).toChar, withMenu = true)
       this.putValue(Action.NAME, tabManager.getTitleAtCombinedIndex(index));
       override def actionPerformed(e: ActionEvent) {
+        println("  ")
+        println("### TabsMenu - tabAction, actionPerformed, setPanelsSelectedIndex")
         tabManager.setPanelsSelectedIndex(index)
       }
     }

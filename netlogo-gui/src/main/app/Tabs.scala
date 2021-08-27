@@ -103,7 +103,7 @@ class Tabs(workspace:           GUIWorkspace,
     override def windowGainedFocus(e: WindowEvent) {
       val currentTab = getTabs.getSelectedComponent
       println("    ")
-      println("*** Tabs - windowGainedFocus")
+      println("### Tabs - windowGainedFocus")
       // tabManager.__PrintWindowEventInfo(e)
       // //setCurrentTab(currentTab)
       // tabManager.__printFocusOwner(getAppJFrame, true)
@@ -114,7 +114,7 @@ class Tabs(workspace:           GUIWorkspace,
         // The SwitchedTabsEvent can lead to compilation. AAB 10/2020
          new AppEvents.SwitchedTabsEvent(tabManager.getMainCodeTab, currentTab).raise(getTabs)
       }
-      println("*** Tabs")
+//      println("*** Tabs")
     }
     })
 
@@ -148,10 +148,10 @@ class Tabs(workspace:           GUIWorkspace,
         case (false, true) => saveModelActions foreach menu.revokeAction
         case _             =>
       }
-      if (debugOn) tabManager.__printFocusOwner(getAppJFrame, true)
-      if (debugOn) println("    Focus requested: " + tabManager.__getSimpleName(currentTab))
-      currentTab.requestFocusInWindow()
-      if (debugOn) tabManager.__printFocusOwner(getAppJFrame)
+      // if (debugOn) tabManager.__printFocusOwner(getAppJFrame, true)
+      // if (debugOn) println("    Focus requested: " + tabManager.__getSimpleName(currentTab))
+      // currentTab.requestFocusInWindow()
+      // if (debugOn) tabManager.__printFocusOwner(getAppJFrame)
       new AppEvents.SwitchedTabsEvent(previousTab, currentTab).raise(this)
       if (debugOn) tabManager.__PrintHideUndoMenuCounts
     } else {
@@ -170,6 +170,7 @@ class Tabs(workspace:           GUIWorkspace,
       if (me.getClickCount() == 1 && me.isControlDown) {
         val clickedTab = me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent
         if (clickedTab.isInstanceOf[MainCodeTab]) {
+          println("   ")
           println(">>> Tabs - " + tabManager.__getSimpleName(clickedTab) + " control clicked")
           println("    Current Tab: " + tabManager.__getSimpleName(currentTab))
           tabManager.switchToSeparateCodeWindow

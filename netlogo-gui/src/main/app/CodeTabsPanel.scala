@@ -69,27 +69,21 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
   }
 
   this.addMouseListener(new MouseAdapter() {
-    override def mouseClicked(me: MouseEvent) {
-      // A single mouse click switches focus to a tab. AAB 10/2020
-      if (me.getClickCount() == 1) {
-        val currentTab = me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent
-        // A single mouse control-click on the MainCodeTab in a separate window
-        // closes the code window, and takes care of the bookkeeping. AAB 10/2020
-        if (me.isControlDown && currentTab.isInstanceOf[MainCodeTab]) {
-          println("    ")
-          println("    ")
-          println(">>> CodeTabsPanel - Code Tab control clicked")
+    override def mouseClicked(me: MouseEvent): Unit =  {
+      // A single mouse control-click on the MainCodeTab when it is in a separate window
+      // closes the separate code window, and takes care of the bookkeeping. AAB 10/2020
+      if (me.getClickCount() == 1 && me.isControlDown) {
+        val clickedTab = me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent
+        if (clickedTab.isInstanceOf[MainCodeTab]) {
+          println("   ")
+          println(">>> Tabs - " + tabManager.__getSimpleName(clickedTab) + " control clicked")
+          println("    Current Tab: " + tabManager.__getSimpleName(currentTab))
           tabManager.switchToNoSeparateCodeWindow
         } else {
-          println("    ")
-          println("*** CodeTabsPanel - mouse click ")
-          setCurrentTab(currentTab)
-          tabManager.__printFocusOwner(getCodeTabContainer, true)
-          println("    Focus requested: " + tabManager.__getSimpleName(currentTab))
-          currentTab.requestFocusInWindow()
-          tabManager.__printFocusOwner(getCodeTabContainer, true)
-          println("***")
+          println(" Tabs - " + tabManager.__getSimpleName(clickedTab) + " control clicked")
         }
+      } else if (me.getClickCount() == 1) {
+        println("### Tabs - " + tabManager.__getSimpleName(me.getSource.asInstanceOf[JTabbedPane].getSelectedComponent) + " clicked")
       }
     }
   })
@@ -98,6 +92,14 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
   codeTabContainer.addWindowListener(new WindowAdapter() {
     override def windowClosing(e: WindowEvent) {
       tabManager.switchToNoSeparateCodeWindow
+    }
+  })
+
+  codeTabContainer.addWindowFocusListener(new WindowAdapter() {
+    override def  windowGainedFocus(e: WindowEvent) {
+      println("    ")
+      println("### CodeTabsPanel - windowGainedFocus")
+//      println("*** CodeTabsPanel")
     }
   })
 
@@ -137,13 +139,13 @@ class CodeTabsPanel(workspace:            GUIWorkspace,
         case (false, true) => tabManager.appTabsPanel.saveModelActions foreach tabManager.menuBar.revokeAction
         case _             =>
       }
-      tabManager.__printFocusOwner(getCodeTabContainer, true)
-      println("    Focus requested: " + tabManager.__getSimpleName(currentTab))
-      currentTab.requestFocusInWindow()
-      tabManager.__printFocusOwner(getCodeTabContainer, true)
-      println("    createCodeTabAccelerators")
-      // this shouldn't need to happen for every state change
-      tabManager.createCodeTabAccelerators
+      // tabManager.__printFocusOwner(getCodeTabContainer, true)
+      // println("    Focus requested: " + tabManager.__getSimpleName(currentTab))
+      // currentTab.requestFocusInWindow()
+      // tabManager.__printFocusOwner(getCodeTabContainer, true)
+      // println("    createCodeTabAccelerators")
+      // // this shouldn't need to happen for every state change
+      // tabManager.createCodeTabAccelerators
       // The SwitchedTabsEvent will cause compilation when the user leaves an edited CodeTab. AAB 10/2020
       new AppEvents.SwitchedTabsEvent(previousTab, currentTab).raise(this)
       tabManager.__PrintHideUndoMenuCounts

@@ -213,10 +213,10 @@ class AppTabManager(val appTabsPanel:          Tabs,
       println("    Deselect tab: setSelectedIndex(-1) ")
       tabOwner.setSelectedIndex(-1)
     }
-    // println("    request FocusInWindow: ")
-    // tabOwner.requestFocusInWindow
     println("    Set selected index")
     tabOwner.setSelectedIndex(tabIndex)
+    println("    request FocusInWindow: ")
+    tabOwner.requestFocusInWindow
     println("*** <setPanelsSelectedIndex")
   }
 
