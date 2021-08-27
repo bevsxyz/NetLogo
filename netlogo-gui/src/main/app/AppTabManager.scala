@@ -204,25 +204,19 @@ class AppTabManager(val appTabsPanel:          Tabs,
     println("    Input index: " + index)
     println("    Tab owner " + __getSimpleName(tabOwner) + ", owner index " + tabIndex)
     println("    Current selected index: " + tabOwner.getSelectedIndex)
-    if (tabOwner.isInstanceOf[CodeTabsPanel]) {
-      println("    request FocusInWindow: ")
-      tabOwner.requestFocusInWindow
-      println("    Set selected index")
-      tabOwner.setSelectedIndex(tabIndex)
-    } else {
-      val selectedIndex = tabOwner.getSelectedIndex
-      if (selectedIndex == tabIndex) {
-        // Saves selected tab as current tab
-        println("    Equal Indexes, Set Current Tab to: " + __getSimpleName(tabOwner.getComponentAt(tabIndex)))
-        tabOwner.setCurrentTab(tabOwner.getComponentAt(tabIndex))
-        // Deselects the tab
-        println("    Deselect tab: setSelectedIndex(-1) ")
-        tabOwner.setSelectedIndex(-1)
-      }
-      // Reselects the tab in the Application window
-      println("    Set selected index")
-      tabOwner.setSelectedIndex(tabIndex)
+    val selectedIndex = tabOwner.getSelectedIndex
+    if (selectedIndex == tabIndex) {
+      // Saves selected tab as current tab
+      println("    Equal Indexes, Set Current Tab to: " + __getSimpleName(tabOwner.getComponentAt(tabIndex)))
+      tabOwner.setCurrentTab(tabOwner.getComponentAt(tabIndex))
+      // Deselects the tab
+      println("    Deselect tab: setSelectedIndex(-1) ")
+      tabOwner.setSelectedIndex(-1)
     }
+    // println("    request FocusInWindow: ")
+    // tabOwner.requestFocusInWindow
+    println("    Set selected index")
+    tabOwner.setSelectedIndex(tabIndex)
     println("*** <setPanelsSelectedIndex")
   }
 
